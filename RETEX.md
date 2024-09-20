@@ -8,13 +8,12 @@ scripts de provisionnement et du post-process
 Pas totalement réussi pour l'instant :
 - faire un template "assez générique" qui build des images Windows/Windows 
 Server.
-- 
 
 ## Points forts
 
-- est capable de gérer toutes les actions du téléchargement de l'ISO à la 
-config de la VM, l'installation de l'OS via l'installer, le provisionnement de
-la VM et le pot-process (compression, export etc.)
+- Packer est capable de gérer toutes les actions du téléchargement de l'ISO à 
+la config de la VM, l'installation de l'OS via l'installer, le provisionnement 
+de la VM et le pot-process (compression, export etc.)
 
 - les fichiers de config Packer peuvent être écrits en JSON (pas besoin
 d'apprendre un nouveau langage)
