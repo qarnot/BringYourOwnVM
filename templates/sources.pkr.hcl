@@ -1,5 +1,6 @@
 source "qemu" "qemu" {
   accelerator = "kvm"
+  # still not perfect, use "local" to add logic and gain more genericity ?
   boot_command = [
     "<wait><wait><wait><esc><wait><wait><wait>",
     "/install.amd/vmlinuz ",
@@ -14,13 +15,13 @@ source "qemu" "qemu" {
   boot_wait            = var.boot_wait
   communicator         = var.communicator
   cpus                 = var.cpus
-  disk_cache           = "writeback"
-  disk_compression     = false
-  disk_discard         = "ignore"
-  disk_image           = false
-  disk_interface       = "virtio-scsi"
+  disk_cache           = var.disk_cache
+  disk_compression     = var.disk_compression
+  disk_discard         = var.disk_discard
+  disk_image           = var.disk_image
+  disk_interface       = var.disk_interface
   disk_size            = var.disk_size
-  format               = "qcow2"
+  format               = var.format
   headless             = var.headless
   host_port_max        = var.host_port_max
   host_port_min        = var.host_port_min
@@ -28,18 +29,19 @@ source "qemu" "qemu" {
   http_port_max        = var.http_port_max
   http_port_min        = var.http_port_min
   iso_checksum         = var.iso_checksum
-  iso_skip_cache       = false
-  iso_target_extension = "iso"
+  iso_skip_cache       = var.iso_skip_cache
+  iso_target_extension = var.iso_target_extension
   iso_url = "${var.iso_path_external}/${var.iso_file}"
-  machine_type                 = "pc"
+  machine_type                 = var.machine_type
   memory                       = var.memory
-  net_device                   = "virtio-net"
+  net_device                   = var.net_device
   output_directory             = local.output_directory
   qemu_binary                  = var.qemu_binary
+  # still not perfect, use "local" to add logic and gain more genericity ?
   shutdown_command             = "echo '${var.ssh_password}' | sudo -E -S poweroff"
   shutdown_timeout             = var.shutdown_timeout
-  skip_compaction              = true
-  skip_nat_mapping             = false
+  skip_compaction              = var.skip_compaction
+  skip_nat_mapping             = var.skip_nat_mapping
   ssh_agent_auth               = var.ssh_agent_auth
   ssh_clear_authorized_keys    = var.ssh_clear_authorized_keys
   ssh_disable_agent_forwarding = var.ssh_disable_agent_forwarding
@@ -51,7 +53,7 @@ source "qemu" "qemu" {
   ssh_pty                      = var.ssh_pty
   ssh_timeout                  = var.ssh_timeout
   ssh_username                 = var.ssh_username
-  use_default_display          = false
+  use_default_display          = var.use_default_display
   vm_name                      = var.vm_name
   vnc_bind_address             = var.vnc_vrdp_bind_address
   vnc_port_max                 = var.vnc_vrdp_port_max
@@ -59,5 +61,5 @@ source "qemu" "qemu" {
 }
 
 locals {
-  output_directory = "build/"
+  output_directory = var.output_directory
 }

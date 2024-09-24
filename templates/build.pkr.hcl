@@ -13,14 +13,13 @@ build {
   sources = ["source.qemu.qemu"]
 
   provisioner "shell" {
-    binary = false
+    binary = var.binary
+    scripts = var.scripts
+    expect_disconnect = var.expect_disconnect
+    pause_before = var.pause_before
+
+    # still not perfect, use "local" to add logic and gain more genericity ?
     execute_command = "echo '${var.ssh_password}' | {{ .Vars }} sudo -E -S '{{ .Path }}'"
-    environment_vars = [
-      "SSH_USERNAME=${var.ssh_username}"
-    ]
-    scripts = [
-      "scripts/script1.sh",
-      "scripts/script2.sh"
-    ]
+    environment_vars = ["SSH_USERNAME=${var.ssh_username}"]
   }
 }

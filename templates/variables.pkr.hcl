@@ -115,7 +115,7 @@ variable "memory" {
 
 variable "mirror" {
   type    = string
-  default = "ftp.ca.debian.org"
+  default = "ftp.fr.debian.org"
 }
 
 variable "packer_cache_dir" {
@@ -125,7 +125,7 @@ variable "packer_cache_dir" {
 
 variable "preseed_file" {
   type    = string
-  default = "base.preseed"
+  default = "debian.preseed"
 }
 
 variable "qemu_binary" {
@@ -241,4 +241,94 @@ variable "vnc_vrdp_port_max" {
 variable "vnc_vrdp_port_min" {
   type    = string
   default = "5900"
+}
+
+variable "binary" {
+  type = bool
+  default = false
+}
+
+variable "scripts" {
+  type = list(string)
+  default = null
+}
+
+variable "skip_compaction" {
+  type = bool
+  default = true
+}
+
+variable "skip_nat_mapping" {
+  type = bool
+  default = false
+}
+
+variable "use_default_display" {
+  type = bool
+  default = false
+}
+
+variable "disk_cache" {
+  type = string
+  default = "writeback"
+}
+
+variable "disk_compression" {
+  type = bool
+  default = false
+}
+
+variable "disk_discard" {
+  type = string
+  default = "ignore"
+}
+
+variable "disk_image" {
+  type = bool
+  default = false
+}
+
+variable "disk_interface" {
+  type = string
+  default = "virtio-scsi"
+}
+
+variable "format" {
+  type = string
+  default = "qcow2"
+}
+
+variable "iso_skip_cache" {
+  type = bool
+  default = false
+}
+
+variable "iso_target_extension" {
+  type = string
+  default = "iso"
+}
+
+variable "machine_type" {
+  type = string
+  default = "pc"
+}
+
+variable "net_device" {
+  type = string
+  default = "virtio-net"
+}
+
+variable "output_directory" {
+  type = string
+  default = "build/"
+}
+
+variable "expect_disconnect" {
+  type = bool
+  default = true
+}
+
+variable "pause_before" {
+  type = string
+  default = "5s"
 }
