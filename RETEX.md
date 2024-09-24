@@ -31,5 +31,19 @@ fichier de config ".cfg" utilisant encore une syntaxe différente.
 - projet mal documenté : documentation mauvaise voire absente pour la plupart 
 des plugins, plugins pourtant indispensables pour utiliser Packer.
 
+## Config
+### Pour Windows
+
+besoin de :
+- virtio-win.iso (les drivers spécifiques à Windows)
+- Autounattend.xml (la config pour l'installer)
+- fichiers HCL ou JSON de config Packer
+
+### Pour Debian (et d'autres distributions Linux ?)
+
+besoin de :
+- fichiers HCL ou JSON de config Packer
+- *.preseed (la config pour l'installer)
+
 ## TODO
 ...
