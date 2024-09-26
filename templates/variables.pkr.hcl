@@ -181,6 +181,7 @@ variable "ssh_keep_alive_interval" {
 variable "ssh_password" {
   type    = string
   default = "batman"
+  sensitive = true
 }
 
 variable "ssh_port" {
