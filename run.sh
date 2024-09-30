@@ -2,4 +2,4 @@
 
 rm -rf ./build;
 packer init ./templates;
-packer build -var-file=vars/debian2.pkrvars.hcl ./templates;
+PACKER_LOG=1 packer build -var-file=vars/windows.pkrvars.hcl ./templates;

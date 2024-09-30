@@ -333,3 +333,13 @@ variable "pause_before" {
   type = string
   default = "5s"
 }
+
+variable "floppy_files" {
+  type = list(string)
+  default = null
+}
+
+variable "qemuargs" {
+  type = list(list(string))
+  default = null
+}

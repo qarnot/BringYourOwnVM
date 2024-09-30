@@ -1,17 +1,17 @@
 source "qemu" "qemu" {
   accelerator = "kvm"
   # still not perfect, use "local" to add logic and gain more genericity ?
-  boot_command = [
-    "<wait><wait><wait><esc><wait><wait><wait>",
-    "/install.amd/vmlinuz ",
-    "initrd=/install.amd/initrd.gz ",
-    "auto=true ",
-    "url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/${var.preseed_file} ",
-    "hostname=${var.vm_name} ",
-    "domain=${var.domain} ",
-    "interface=auto ",
-    "vga=788 noprompt quiet --<enter>"
-  ]
+  # boot_command = [
+  #   "<wait><wait><wait><esc><wait><wait><wait>",
+  #   "/install.amd/vmlinuz ",
+  #   "initrd=/install.amd/initrd.gz ",
+  #   "auto=true ",
+  #   "url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/${var.preseed_file} ",
+  #   "hostname=${var.vm_name} ",
+  #   "domain=${var.domain} ",
+  #   "interface=auto ",
+  #   "vga=788 noprompt quiet --<enter>"
+  # ]
   boot_wait            = var.boot_wait
   communicator         = var.communicator
   cpus                 = var.cpus
@@ -38,7 +38,7 @@ source "qemu" "qemu" {
   output_directory             = local.output_directory
   qemu_binary                  = var.qemu_binary
   # still not perfect, use "local" to add logic and gain more genericity ?
-  shutdown_command             = "echo '${var.ssh_password}' | sudo -E -S poweroff"
+  # shutdown_command             = "echo '${var.ssh_password}' | sudo -E -S poweroff"
   shutdown_timeout             = var.shutdown_timeout
   skip_compaction              = var.skip_compaction
   skip_nat_mapping             = var.skip_nat_mapping
@@ -58,6 +58,16 @@ source "qemu" "qemu" {
   vnc_bind_address             = var.vnc_vrdp_bind_address
   vnc_port_max                 = var.vnc_vrdp_port_max
   vnc_port_min                 = var.vnc_vrdp_port_min
+
+  shutdown_command             = "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\""
+  winrm_username               = "batman"
+  winrm_password               = "batman"
+  winrm_use_ssl                = true
+  winrm_insecure               = true
+  winrm_timeout                = "30m"
+  pause_before_connecting      = "1m30s"
+  qemuargs                     = var.qemuargs
+  floppy_files                 = var.floppy_files
 }
 
 locals {
