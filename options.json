@@ -1,0 +1,68 @@
+{
+  "options": [
+    {
+      "id": 0,
+      "slug": "disk_image",
+      "question": "Do you already have a base VM image to provide ?",
+      "answer_type": "string",
+      "answers": ["true", "false"],
+      "branchings": [1, 2]
+    },
+    {
+      "id": 1,
+      "slug": "os_guest",
+      "question": "Which Operating System does your VM use ?",
+      "answer_type": "string",
+      "answers": ["windows", "linux"],
+      "branchings": [3, 6]
+    },
+    {
+      "id": 2,
+      "slug": "os_guest",
+      "question": "Which Operating System do you want ?",
+      "answer_type": "string",
+      "answers": ["windows", "linux"],
+      "branchings": [3, 6]
+    },
+    {
+      "id": 3,
+      "slug": "iso_path",
+      "question": "Please, specify the path (absolute) to your VM (qcow2 format required) or to your ISO:",
+      "answer_type": "string",
+      "answers": [],
+      "branchings": [4]
+    },
+    {
+      "id": 4,
+      "slug": "iso_checksum",
+      "question": "Please, specify the checksum:",
+      "answer_type": "string",
+      "answers": [],
+      "branchings": [5]
+    },
+    {
+      "id": 5,
+      "slug": "scripts",
+      "question": "Provide additional configuration scripts:",
+      "answer_type": "list",
+      "answers": [],
+      "branchings": [-1]
+    },
+    {
+      "id": 6,
+      "slug": "ssh_username",
+      "question": "Provide a username for SSH connections:",
+      "answer_type": "string",
+      "answers": [],
+      "branchings": [7]
+    },
+    {
+      "id": 7,
+      "slug": "ssh_password",
+      "question": "Provide the password for the user for SSH connections:",
+      "answer_type": "string",
+      "answers": [],
+      "branchings": [3]
+    }
+  ]
+}
