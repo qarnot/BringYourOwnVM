@@ -1,3 +1,5 @@
-build/
-Qvm
-*.iso
+src/qvm.qcow2
+src/qvm.qcow2.sha256
+src/iso
+src/plugins
+src/scripts/install-resources/software/
