@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend">
+    <settings pass="windowsPE">
+        <component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <SetupUILanguage>
+                <UILanguage>en-US</UILanguage>
+            </SetupUILanguage>
+            <InputLocale>fr-FR</InputLocale>
+            <SystemLocale>en-US</SystemLocale>
+            <UILanguage>en-US</UILanguage>
+            <UserLocale>en-US</UserLocale>
+        </component>
+        <component name="Microsoft-Windows-PnpCustomizationsWinPE" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <DriverPaths>
+                <PathAndCredentials wcm:action="add" wcm:keyValue="1">
+                    <Path>E:\viostor\w10\amd64</Path> <!-- viostor.inf -->
+                </PathAndCredentials>
+                <PathAndCredentials wcm:action="add" wcm:keyValue="2">
+                    <Path>E:\NetKVM\w10\amd64</Path> <!-- netkvm.inf -->
+                </PathAndCredentials>
+            </DriverPaths>
+        </component>
+        <component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <ImageInstall>
+                <OSImage>
+                    <InstallFrom>
+                        <MetaData wcm:action="add">
+                            <Key>/IMAGE/NAME</Key>
+                            <Value>Windows Server 2016 SERVERSTANDARD</Value>
+                        </MetaData>
+                    </InstallFrom>
+                    <InstallTo>
+                        <DiskID>0</DiskID>
+                        <PartitionID>2</PartitionID>
+                    </InstallTo>
+                    <Compact>true</Compact>
+                </OSImage>
+            </ImageInstall>
+            <UserData>
+                <AcceptEula>true</AcceptEula>
+            </UserData>
+            <DiskConfiguration>
+                <WillShowUI>OnError</WillShowUI>
+                <Disk wcm:action="add">
+                    <DiskID>0</DiskID>
+                    <WillWipeDisk>true</WillWipeDisk>
+                    <CreatePartitions>
+                        <CreatePartition wcm:action="add">
+                            <Order>1</Order>
+                            <Size>500</Size>
+                            <Type>Primary</Type>
+                        </CreatePartition>
+                        <CreatePartition wcm:action="add">
+                            <Order>2</Order>
+                            <Extend>true</Extend>
+                            <Type>Primary</Type>
+                        </CreatePartition>
+                    </CreatePartitions>
+                    <ModifyPartitions>
+                        <ModifyPartition wcm:action="add">
+                            <Format>NTFS</Format>
+                            <Label>System Reserved</Label>
+                            <Order>1</Order>
+                            <PartitionID>1</PartitionID>
+                            <Active>true</Active>
+                        </ModifyPartition>
+                        <ModifyPartition wcm:action="add">
+                            <Format>NTFS</Format>
+                            <Label></Label>
+                            <Order>2</Order>
+                            <PartitionID>2</PartitionID>
+                        </ModifyPartition>
+                    </ModifyPartitions>
+                </Disk>
+            </DiskConfiguration>
+            <Diagnostics>
+                <OptIn>false</OptIn>
+            </Diagnostics>
+        </component>
+    </settings>
+
+    <settings pass="offlineServicing">
+        <component name="Microsoft-Windows-LUA-Settings" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <EnableLUA>false</EnableLUA>
+        </component>
+    </settings>
+
+    <settings pass="specialize">
+        <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+            <RunSynchronous>
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\setup-powercfg.ps1</Path>
+                    <Order>1</Order>
+                    <Description>Setup powercfg for high performance</Description>
+                </RunSynchronousCommand>
+            </RunSynchronous>
+
+        </component>
+        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <ProductKey>WC2BQ-8NRM3-FDDYY-2BFGV-KHKQY</ProductKey>
+        </component>
+    </settings>
+
+
+    <settings pass="oobeSystem">
+        <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+             <Reseal>
+                <ForceShutdownNow>false</ForceShutdownNow>
+                <Mode>Audit</Mode>
+            </Reseal>
+        </component>
+    </settings>
+
+    <settings pass="auditUser">
+        <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS"
+            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <RunSynchronous>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\check-network.ps1</Path>
+                    <Order>1</Order>
+                    <Description>Check network</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\configure-powershell-repository.ps1</Path>
+                    <Order>2</Order>
+                    <Description>Configure Powershell repository</Description>
+                </RunSynchronousCommand>
+
+		<RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\update-root-ca-certificates.ps1</Path>
+                    <Order>3</Order>
+                    <Description>Update root certificates</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\install-chocolatey.ps1</Path>
+                    <Order>4</Order>
+                    <Description>Install Chocolatey package manager</Description>
+                    <WillReboot>Always</WillReboot>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\install-nssm.ps1</Path>
+                    <Order>5</Order>
+                    <Description>Install nssm</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\install-sdelete.ps1</Path>
+                    <Order>6</Order>
+                    <Description>Install sdelete</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\install-posh-syslog.ps1</Path>
+                    <Order>7</Order>
+                    <Description>Install Posh-syslog module</Description>
+                </RunSynchronousCommand>
+
+		<!-- Install 3DS Max 2021 -->
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\software\3dsmax\3ds2021.ps1</Path>
+                    <Order>8</Order>
+                    <Description>Install 3DS Max 2021</Description>
+                    <WillReboot>Always</WillReboot>
+                </RunSynchronousCommand>
+
+        	<!-- Install VRay 51003 for 3DS Max 2021 -->
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\software\vray\vray-51003.ps1</Path>
+                    <Order>9</Order>
+                    <Description>Install VRay 51003 for 3DS Max 2021</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\dotnet\install-dotnet-core-3.1.ps1</Path>
+                    <Order>10</Order>
+                    <Description>Install dotnet core 3.1</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\dotnet\install-dotnet-framework-4.8.ps1</Path>
+                    <Order>11</Order>
+                    <Description>Install dotnet 4.8</Description>
+                    <WillReboot>Always</WillReboot>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\dotnet\check-dotnet-framework-version.ps1</Path>
+                    <Order>12</Order>
+                    <Description>Check .NET Framework version</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\install-windows-updates.ps1</Path>
+                    <Order>13</Order>
+                    <Description>Install Windows updates and reboot</Description>
+                    <WillReboot>Always</WillReboot>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\install-qarnot-startup-service.ps1</Path>
+                    <Order>14</Order>
+                    <Description>Install Qarnot startup service (bootstrap.ps1)</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\disable-windows-defender.ps1</Path>
+                    <Order>15</Order>
+                    <Description>Disable Windows Defender</Description>
+                    <WillReboot>Always</WillReboot>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\disable-windows-updates.ps1</Path>
+                    <Order>16</Order>
+                    <Description>Disable Windows Updates</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\optimize-windows.ps1</Path>
+                    <Order>17</Order>
+                    <Description>Optimize Windows (remove useless stuff, defrag, zero-out empty parts)</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\activate-winrm.ps1</Path>
+                    <Order>18</Order>
+                    <Description>Activate WinRM</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\setup-powercfg.ps1</Path>
+                    <Order>19</Order>
+                    <Description>Setup powercfg</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\reboot-in-oobe.ps1</Path>
+                    <Order>20</Order>
+                    <Description>Sysprep reseal in OOBE mode</Description>
+                    <WillReboot>Never</WillReboot>
+                </RunSynchronousCommand>
+
+            </RunSynchronous>
+        </component>
+    </settings>
+
+    <cpi:offlineImage cpi:source="wim:c:/temp/2016/sources/install.wim#Windows Server 2016 SERVERSTANDARD" xmlns:cpi="urn:schemas-microsoft-com:cpi" />
+</unattend>

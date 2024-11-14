@@ -1,0 +1,14 @@
+[Unit]
+Description="Qarnot configuration tool"
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/opt/qarnot/bin/configure.sh
+Restart=on-failure
+RestartSec=15
+
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,20 @@
+---
+- name: qarnot config | Installing qarnot-config.service
+  copy:
+    src: ../runtime/etc/qarnot-config.service
+    dest: /etc/systemd/system/qarnot-config.service
+  become: true
+
+- name: qarnot config | Enabling qarnot-config service
+  systemd:
+    name: qarnot-config
+    daemon_reload: yes
+    enabled: yes
+  become: true
+
+- name: qarnot config | Installing config scripts
+  copy:
+    src: ../runtime/bin/
+    dest: /opt/qarnot/bin/
+    mode: u=rwx,go=-
+  become: true

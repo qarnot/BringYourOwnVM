@@ -1,0 +1,9 @@
+---
+- hosts: default
+  tasks:
+    - name: Qarnot Dependencies
+      include_tasks: qarnot-dependencies.yml
+
+    - name: Qarnot Config Tasks
+      include_tasks: qarnot-config.yml
+

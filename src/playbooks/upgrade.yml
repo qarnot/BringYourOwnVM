@@ -1,0 +1,6 @@
+---
+- name: upgrades | Updating and upgrading Apt Cache
+  apt:
+    update_cache: true
+    upgrade: yes
+  become: true

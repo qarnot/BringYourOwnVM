@@ -1,0 +1,12 @@
+[Unit]
+Description="docker-machine patch | Restart docker and setup SSH port forwarding"
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/opt/qarnot/bin/docker-machine-patch.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

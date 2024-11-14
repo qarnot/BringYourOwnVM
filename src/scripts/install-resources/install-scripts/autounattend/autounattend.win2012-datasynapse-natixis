@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend">
+    <settings pass="windowsPE">
+        <component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <SetupUILanguage>
+                <UILanguage>en-US</UILanguage>
+            </SetupUILanguage>
+            <InputLocale>en-US</InputLocale>
+            <SystemLocale>en-US</SystemLocale>
+            <UILanguage>en-US</UILanguage>
+            <UserLocale>en-US</UserLocale>
+        </component>
+        <component name="Microsoft-Windows-PnpCustomizationsWinPE" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <DriverPaths>
+                <PathAndCredentials wcm:action="add" wcm:keyValue="1">
+                    <Path>E:\viostor\2k12R2\amd64</Path> <!-- viostor.inf -->
+                </PathAndCredentials>
+                <PathAndCredentials wcm:action="add" wcm:keyValue="2">
+                    <Path>E:\NetKVM\2k12R2\amd64</Path> <!-- netkvm.inf -->
+                </PathAndCredentials>
+            </DriverPaths>
+        </component>
+        <component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <UserData>
+                <ProductKey>
+                    <WillShowUI>OnError</WillShowUI>
+                    <Key>D2N9P-3P6X9-2R39C-7RTCD-MDVJX</Key>
+                </ProductKey>
+                <AcceptEula>true</AcceptEula>
+            </UserData>
+            <ImageInstall>
+                <OSImage>
+                    <InstallFrom>
+                        <MetaData wcm:action="add">
+                            <Key>/IMAGE/NAME</Key>
+                            <Value>Windows Server 2012 R2 SERVERSTANDARDCORE</Value>
+                        </MetaData>
+                    </InstallFrom>
+                    <InstallTo>
+                        <DiskID>0</DiskID>
+                        <PartitionID>2</PartitionID>
+                    </InstallTo>
+                </OSImage>
+            </ImageInstall>
+            <DiskConfiguration>
+                <Disk wcm:action="add">
+                    <CreatePartitions>
+                        <CreatePartition wcm:action="add">
+                            <Order>1</Order>
+                            <Size>500</Size>
+                            <Type>Primary</Type>
+                        </CreatePartition>
+                        <CreatePartition wcm:action="add">
+                            <Extend>true</Extend>
+                            <Order>2</Order>
+                            <Type>Primary</Type>
+                        </CreatePartition>
+                    </CreatePartitions>
+                    <ModifyPartitions>
+                        <ModifyPartition wcm:action="add">
+                            <Active>true</Active>
+                            <Format>NTFS</Format>
+                            <Label>System</Label>
+                            <Order>1</Order>
+                            <PartitionID>1</PartitionID>
+                        </ModifyPartition>
+                        <ModifyPartition wcm:action="add">
+                            <Format>NTFS</Format>
+                            <Label>Windows</Label>
+                            <Letter>C</Letter>
+                            <Order>2</Order>
+                            <PartitionID>2</PartitionID>
+                        </ModifyPartition>
+                    </ModifyPartitions>
+                    <DiskID>0</DiskID>
+                    <WillWipeDisk>true</WillWipeDisk>
+                </Disk>
+            </DiskConfiguration>
+        </component>
+    </settings>
+    <settings pass="offlineServicing">
+        <component name="Microsoft-Windows-LUA-Settings" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <EnableLUA>false</EnableLUA>
+        </component>
+    </settings>
+
+    <settings pass="specialize">
+        <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+            <RunSynchronous>
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\setup-powercfg.ps1</Path>
+                    <Order>1</Order>
+                    <Description>Setup powercfg for high performance</Description>
+                </RunSynchronousCommand>
+            </RunSynchronous>
+
+        </component>
+        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <ProductKey>D2N9P-3P6X9-2R39C-7RTCD-MDVJX</ProductKey>
+        </component>
+    </settings>
+
+
+    <settings pass="oobeSystem">
+        <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+             <Reseal>
+                <ForceShutdownNow>false</ForceShutdownNow>
+                <Mode>Audit</Mode>
+            </Reseal>
+        </component>
+    </settings>
+
+    <settings pass="auditUser">
+        <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS"
+            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <RunSynchronous>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\check-network.ps1</Path>
+                    <Order>1</Order>
+                    <Description>Check network</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\configure-powershell-repository.ps1</Path>
+                    <Order>2</Order>
+                    <Description>Configure Powershell repository</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\install-chocolatey.ps1</Path>
+                    <Order>3</Order>
+                    <Description>Install Chocolatey package manager</Description>
+                    <WillReboot>Always</WillReboot>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\install-nssm.ps1</Path>
+                    <Order>4</Order>
+                    <Description>Install nssm</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\install-sdelete.ps1</Path>
+                    <Order>5</Order>
+                    <Description>Install sdelete</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\install-posh-syslog.ps1</Path>
+                    <Order>6</Order>
+                    <Description>Install Posh-syslog module</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\dotnet\install-dotnet-core-3.1.ps1</Path>
+                    <Order>7</Order>
+                    <Description>Install dotnet core 3.1</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\dotnet\install-dotnet-framework-4.8.ps1</Path>
+                    <Order>8</Order>
+                    <Description>Install dotnet 4.8</Description>
+                    <WillReboot>Always</WillReboot>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\dotnet\check-dotnet-framework-version.ps1</Path>
+                    <Order>9</Order>
+                    <Description>Check .NET Framework version</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\install-windows-updates.ps1</Path>
+                    <Order>10</Order>
+                    <Description>Install Windows updates and reboot</Description>
+                    <WillReboot>Always</WillReboot>
+                </RunSynchronousCommand>
+
+		<RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\software\datasynapse\datasynapse.ps1</Path>
+                    <Order>11</Order>
+                    <Description>Install Datasynapse</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\install-qarnot-startup-service.ps1</Path>
+                    <Order>12</Order>
+                    <Description>Install Qarnot startup service (bootstrap.ps1)</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\disable-windows-defender.ps1</Path>
+                    <Order>13</Order>
+                    <Description>Disable Windows Defender</Description>
+                    <WillReboot>Always</WillReboot>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\disable-windows-updates.ps1</Path>
+                    <Order>14</Order>
+                    <Description>Disable Windows Updates</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\optimize-windows.ps1</Path>
+                    <Order>15</Order>
+                    <Description>Optimize Windows (remove useless stuff, defrag, zero-out empty parts)</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\activate-winrm.ps1</Path>
+                    <Order>16</Order>
+                    <Description>Activate WinRM</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\setup-powercfg.ps1</Path>
+                    <Order>17</Order>
+                    <Description>Setup powercfg</Description>
+                </RunSynchronousCommand>
+
+                <RunSynchronousCommand wcm:action="add">
+                    <Path>powershell F:\common\reboot-in-oobe.ps1</Path>
+                    <Order>18</Order>
+                    <Description>Sysprep reseal in OOBE mode</Description>
+                    <WillReboot>Never</WillReboot>
+                </RunSynchronousCommand>
+
+            </RunSynchronous>
+        </component>
+    </settings>
+
+    <cpi:offlineImage cpi:source="wim://desktop-adobe/users/kimberley/documents/ws2012/work/sources/install.wim#Windows Server 2012 R2 SERVERSTANDARDCORE" xmlns:cpi="urn:schemas-microsoft-com:cpi" />
+</unattend>

@@ -1,0 +1,9 @@
+---
+- name: misc | Disable dynamic MOTD
+  pamd:
+    name: sshd
+    type: session
+    control: optional
+    module_path: pam_motd.so
+    state: absent
+  become: true

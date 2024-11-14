@@ -1,0 +1,7 @@
+These scripts are to be added to a Linux guest to make it work with our hosts
+scripts.
+
+PLEASE NOTE that those scripts were developed as a PoC to test the hosts' scripts,
+they have not been particularly tested (no more than the minimum to validate hosts'
+scripts), in particular the NFS shared foders may not really work. This was not the
+main goal here, only fix it if you need solid Linux guest support.

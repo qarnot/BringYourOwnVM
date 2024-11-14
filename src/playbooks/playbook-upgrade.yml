@@ -1,0 +1,8 @@
+---
+- hosts: default
+  tasks:
+    - name: Upgrade Tasks
+      include_tasks: upgrade.yml
+
+    - name: Misc
+      include_tasks: misc.yml

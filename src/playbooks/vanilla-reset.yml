@@ -1,0 +1,12 @@
+---
+- name: vanilla reset | Checking if sshd configuration override exists
+  stat:
+    path: /etc/ssh/sshd_config.d
+  register: _cloud_init_conf
+
+- name: vanilla reset | Restoring sshd configuration
+  file:
+    state: absent
+    path: /etc/ssh/sshd_config.d
+  become: true
+  when: _cloud_init_conf.stat.exists|bool
