@@ -86,7 +86,10 @@ packer init ./templates;
 
 if [ "$OS_GUEST" = "windows" ]; then
 
+  curl -fSL https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso -o virtio-win-0.1.217.iso
+
   setup_nat
+
   if [ ! -z "$AUTOUNATTEND_PATH" ] && [ ! -z "$INIT_SCRIPT_PATH" ] && [ ! -z "$INSTALL_SCRIPTS_PATH" ]; then
     mkdir -p "$TMP_PATH"
     cp -rav "$INSTALL_SCRIPTS_PATH"/* "$TMP_PATH"
