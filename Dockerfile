@@ -2,10 +2,6 @@ FROM debian:12
 
 WORKDIR /work
 
-RUN mkdir -p /root/.config/packer/plugins/github.com/hashicorp
-
-COPY src/plugins/* /root/.config/packer/plugins/github.com/hashicorp
-
 RUN apt-get update && apt-get install -y \
         iproute2 \
         curl \
@@ -34,5 +30,7 @@ apt update && apt install packer
 
 COPY src/run.bash /work/run.bash
 COPY src/ /work/
+
+RUN packer init /work/templates
 
 ENTRYPOINT [ "/work/run.bash" ]
