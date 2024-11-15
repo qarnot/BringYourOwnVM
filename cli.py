@@ -81,7 +81,6 @@ def copy_file(path_src: pathlib.Path, path_dst: pathlib.Path) -> None:
 
         if not path_dst.is_file():
             tmp = pathlib.Path(path_dst).joinpath(path_src.name)
-            print(tmp)
             if not tmp.is_file() or (tmp.is_file()
                                      and not filecmp.cmp(tmp, path_src)):
                 print(f"Please wait, the file is being copied to {path_dst}.")
@@ -123,10 +122,7 @@ def create_var_file(user_config: dict, output_path: str) -> None:
                 "-drive",
                 f"file={user_config['iso_path_external']}/{user_config['iso_file']},media=cdrom,index=1"
             ],
-            [
-                "-drive",
-                f"file={user_config['iso_path_external']}/virtio-win-0.1.217.iso,media=cdrom,index=2"
-            ],
+            ["-drive", "file=./virtio-win-0.1.217.iso,media=cdrom,index=2"],
             [
                 "-drive",
                 f"file={user_config['iso_path_external']}/install-scripts.iso,media=cdrom,index=3"
@@ -234,8 +230,6 @@ def main(args: any) -> int:
             update_user_config(next, user_input, user_config)
 
             next_id = get_branching(next['branchings'], answer_index)
-
-        print(user_config)
     except:
         print("Error: JSON (probably) misformed")
         exit(1)
@@ -248,8 +242,17 @@ def main(args: any) -> int:
     volumes_dict = [f"{str(out_path.absolute())}:/output"]
 
     create_build_dir(out_path)
-    copy_file(pathlib.Path(user_config["iso_path"]), out_path.absolute())
+
+    if user_config["iso_path"] == "":
+        if user_config["disk_image"] == "true":
+            print("Error: An error occured.")
+            exit(1)
+        user_config.pop("iso_path")
+        user_config.pop("iso_checksum")
+    else:
+        copy_file(pathlib.Path(user_config["iso_path"]), out_path.absolute())
     create_var_file(user_config, str(out_path.absolute()))
+    print(user_config)
     env_dict = export_env_vars(user_config, exportable_vars)
 
     print(env_dict)
