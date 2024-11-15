@@ -27,7 +27,8 @@ def get_answer_type(type: str) -> type:
         case "list":
             return list
         case _:
-            raise Exception("wtf")
+            print("Error: An error occured.")
+            exit(1)
 
     return None
 
@@ -61,100 +62,38 @@ def json_format(input: str | int | list) -> str | int | list:
         return input
 
 
-def create_build_dir(path: str) -> None:
-    import os
-
+def create_build_dir(path: pathlib.Path) -> None:
     try:
-        if not os.path.isdir(path):
-            os.makedirs(path)
-        else:
-            print(f"The directory {path} already exists.")
-
-    except:
-        raise Exception("An error occured.")
-
-
-def copy_file(path_src: str, path_dst: str) -> None:
-    import shutil
-    import os
-
-    try:
-        if not os.path.isdir(path_dst) and not os.path.isfile(path_dst):
-            raise Exception("Destination path does not exist.")
-
-        if not os.path.isfile(path_src):
-            raise Exception("Source path does not exist.")
-
-        # temporary
-        if (not os.path.isfile(path_dst) and
-                not os.path.isfile(path_dst + f"/{os.path.basename(path_src)}")
-            ) or (os.path.isfile(path_dst)
-                  and not os.path.samefile(path_src, path_dst)):
-            print(f"Wait, the ISO file is being copied to {path_dst}.")
-            shutil.copy2(path_src, path_dst)
-            print("The ISO file was successfully copied.")
-        else:
-            print("The ISO file already exists.")
-
-    except:
-        raise Exception("An error occured.")
+        path.mkdir()
+    except FileExistsError:
+        print(f"The path: {path} already exists.")
 
     return None
 
 
-# Not very clean
-# def hcl_vars_format(key: str, value: str | int | list) -> str:
-#     if key == "disk_size":
-#         value = f"{value}G"
-#     elif type(value) == str:
-#         return f"{key} = \"{value}\"\n"
-#     return f"{key} = {value}\n"
+def copy_file(path_src: pathlib.Path, path_dst: pathlib.Path) -> None:
+    import shutil
+    import filecmp
 
-# Creates var file and returns a dict of exportable vars
-# def create_var_file(user_config: dict, exportable_vars: list[str],
-#                     output_path: str) -> dict:
-#     var_file_path = "./output/vars.pkrvars.hcl"
-#     env_vars = {}
-#     path = None
+    try:
+        if not path_src.exists() or not path_src.is_file():
+            print(f"Source path: {path_src} does not exist or is not a file.")
 
-#     with open(var_file_path, "w", encoding="utf-8") as f:
-#         for key in user_config:
-#             if key.upper() in exportable_vars:
-#                 env_vars.update(key=user_config[key])
+        if not path_dst.is_file():
+            tmp = pathlib.Path(path_dst).joinpath(path_src.name)
+            print(tmp)
+            if not tmp.is_file() or (tmp.is_file()
+                                     and not filecmp.cmp(tmp, path_src)):
+                print(f"Please wait, the file is being copied to {path_dst}.")
+                shutil.copy2(path_src, path_dst)
+                print("The file was successfully copied.")
+            else:
+                print("The file already exists.")
+    except Exception:
+        print("Error: An error occured while copying the file.")
+        exit(1)
 
-#             if key == "iso_path":
-#                 path = pathlib.Path(user_config[key])
-#                 f.write(hcl_vars_format("iso_path_external", str(path.parent))
-#                         )  # path.parent is of type 'pathlib.PosixPath'
-#                 f.write(hcl_vars_format("iso_file", path.name))
-#             else:
-#                 f.write(hcl_vars_format(key, user_config[key]))
-
-#         if user_config['os_guest'] == "Windows":
-#             qemuargs = [
-#                 [
-#                     "-drive",
-#                     f"file={output_path}/qvm.qcow2,if=none,format=qcow2,id=drive-disk0"
-#                 ],
-#                 [
-#                     "-device",
-#                     "virtio-blk-pci,scsi=off,drive=drive-disk0,id=virtio-disk0,bootindex=0"
-#                 ],
-#                 ["-drive", f"file={str(path)},media=cdrom,index=1"],
-#                 [
-#                     "-drive",
-#                     f"file={str(path.parent)}/virtio-win-0.1.217.iso,media=cdrom,index=2"
-#                 ],
-#                 [
-#                     "-drive",
-#                     f"file={str(path.parent)}/install-scripts.iso,media=cdrom,index=3"
-#                 ],
-#             ]
-#             f.write(hcl_vars_format("qemuargs", qemuargs))
-
-#     assert (f.closed)
-
-#     return env_vars
+    return None
 
 
 def create_var_file(user_config: dict, output_path: str) -> None:
@@ -180,7 +119,10 @@ def create_var_file(user_config: dict, output_path: str) -> None:
                 "-device",
                 "virtio-blk-pci,scsi=off,drive=drive-disk0,id=virtio-disk0,bootindex=0"
             ],
-            ["-drive", f"file={user_config['iso_path_external']}/{user_config['iso_file']},media=cdrom,index=1"],
+            [
+                "-drive",
+                f"file={user_config['iso_path_external']}/{user_config['iso_file']},media=cdrom,index=1"
+            ],
             [
                 "-drive",
                 f"file={user_config['iso_path_external']}/virtio-win-0.1.217.iso,media=cdrom,index=2"
@@ -191,6 +133,22 @@ def create_var_file(user_config: dict, output_path: str) -> None:
             ],
         ]
         user_config.update({"qemuargs": qemuargs})
+        user_config.update({"disk_interface": "virtio"})
+        user_config.update(
+            {"http_dir": "./scripts/install-resources/install-scripts/"})
+        user_config.update({"communicator": "winrm"})
+        user_config.update({"disk_size": "35G"})
+        user_config.update({"boot_wait": "10m"})
+        user_config.update({"memory": 4096})
+        user_config.update({"autounattend_path": "./scripts/Autounattend.xml"})
+        user_config.update({
+            "init_script_path":
+            "./scripts/install-resources/install-scripts/init"
+        })
+        user_config.update({
+            "install_scripts_path":
+            "./scripts/install-resources/install-scripts"
+        })
 
     with open(var_file_path, "w", encoding="utf-8") as f:
         json.dump(user_config, f)
@@ -279,18 +237,18 @@ def main(args: any) -> int:
 
         print(user_config)
     except:
-        raise Exception("JSON (probably) misformed")
+        print("Error: JSON (probably) misformed")
+        exit(1)
 
     out_path = pathlib.Path("./output/")
     repo = "docker-qlab.qarnot.net/byovm"
     tag = "test"
-    # command = "echo 'pas sur de tout le toin toin'"
     command = "sh -c 'while :; do sleep 100; done'"
     devices_list = ["/dev/kvm", "/dev/kvm"]
     volumes_dict = [f"{str(out_path.absolute())}:/output"]
 
     create_build_dir(out_path)
-    copy_file(user_config["iso_path"], str(out_path.absolute()))
+    copy_file(pathlib.Path(user_config["iso_path"]), out_path.absolute())
     create_var_file(user_config, str(out_path.absolute()))
     env_dict = export_env_vars(user_config, exportable_vars)
 
@@ -303,14 +261,13 @@ def main(args: any) -> int:
     print("The Docker image was successfully pulled.")
 
     print("Running the Docker container ...")
-    logs = client.containers.run(
-        f"{repo}:{tag}",
-        command=command,
-        privileged=True,
-        remove=True,
-        environment=env_dict,
-        devices=devices_list,
-        volumes=volumes_dict)
+    logs = client.containers.run(f"{repo}:{tag}",
+                                 command=command,
+                                 privileged=True,
+                                 remove=True,
+                                 environment=env_dict,
+                                 devices=devices_list,
+                                 volumes=volumes_dict)
 
     print(logs)
 
