@@ -3,3 +3,5 @@ src/qvm.qcow2.sha256
 src/iso
 src/plugins
 src/scripts/install-resources/software/
+__pycache__
+output

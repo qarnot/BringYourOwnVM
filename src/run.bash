@@ -93,10 +93,10 @@ if [ "$OS_GUEST" = "windows" ]; then
   if [ ! -z "$AUTOUNATTEND_PATH" ] && [ ! -z "$INIT_SCRIPT_PATH" ] && [ ! -z "$INSTALL_SCRIPTS_PATH" ]; then
     mkdir -p "$TMP_PATH"
     cp -rav "$INSTALL_SCRIPTS_PATH"/* "$TMP_PATH"
-    cp -v "$AUTOUNATTEND_PATH" "$TMP_PATH"/autounattend.xml
+    cp -v "$AUTOUNATTEND_PATH" "$TMP_PATH"/Autounattend.xml
     cp -v "$INIT_SCRIPT_PATH" "$TMP_PATH"/bootstrap.ps1
 
-    genisoimage -J -o ./install-scripts.iso "$TMP_PATH"
+    genisoimage -J -o /output/install-scripts.iso "$TMP_PATH"
   else
     log "Some variables are not defined"
     exit 1
@@ -107,6 +107,7 @@ if [ "$DISK_IMAGE" = "true" ]; then
   BUILD="overlay"
 fi
 
-PACKER_LOG=1 packer build -var-file=/output/vars.json -only "$OS_GUEST-$BUILD.qemu.$OS_GUEST" ./templates;
+packer build -var-file=/output/vars.json -only "$OS_GUEST-$BUILD.qemu.$OS_GUEST" ./templates;
 
+chmod 666 ./build/*
 cp ./build/* /output
