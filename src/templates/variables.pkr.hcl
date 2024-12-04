@@ -356,5 +356,10 @@ variable "qemuargs" {
 
 variable "root_password" {
   type = string
-  default = null
+  default = "default"
+}
+
+variable "root_enable" {
+  type = bool
+  default = false
 }
