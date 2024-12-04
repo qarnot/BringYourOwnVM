@@ -229,15 +229,15 @@
                     <Description>Disable Windows Updates</Description>
                 </RunSynchronousCommand>
 
-                <RunSynchronousCommand wcm:action="add">
-                    <Path>powershell F:\common\optimize-windows.ps1</Path>
-                    <Order>17</Order>
-                    <Description>Optimize Windows (remove useless stuff, defrag, zero-out empty parts)</Description>
-                </RunSynchronousCommand>
+                <!-- <RunSynchronousCommand wcm:action="add"> -->
+                    <!-- <Path>powershell F:\common\optimize-windows.ps1</Path> -->
+                    <!-- <Order>17</Order> -->
+                    <!-- <Description>Optimize Windows (remove useless stuff, defrag, zero-out empty parts)</Description> -->
+                <!-- </RunSynchronousCommand> -->
 
                 <RunSynchronousCommand wcm:action="add">
                     <Path>powershell F:\common\activate-winrm.ps1</Path>
-                    <Order>18</Order>
+                    <Order>17</Order>
                     <Description>Activate WinRM</Description>
                 </RunSynchronousCommand>
 

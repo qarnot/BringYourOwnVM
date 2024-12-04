@@ -1,7 +1,7 @@
 # Create username and password
 # TODO: Should already be created by the autoattend script
-#net user Administrator SuperS3cr3t!!!
-#wmic useraccount where "name='Administrator'" set PasswordExpires=FALSE
+# net user Administrator SuperS3cr3t!!!
+# wmic useraccount where "name='Administrator'" set PasswordExpires=FALSE
 
 # TODO: Also already done by the autoattend script?
 # Enable remote execution to allow WinRM to run commands.
@@ -37,6 +37,6 @@ cmd.exe /c netsh advfirewall firewall set rule group="remote administration" new
 cmd.exe /c netsh firewall add portopening TCP 5986 "Port 5986"
 
 # Restart WinRM, and set it so that it auto-launches on startup.
-cmd.exe /c net stop winrm
-cmd.exe /c sc config winrm start= auto
-cmd.exe /c net start winrm
+# cmd.exe /c net stop winrm
+# cmd.exe /c sc config winrm start= auto
+# cmd.exe /c net start winrm

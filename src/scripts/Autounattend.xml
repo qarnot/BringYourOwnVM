@@ -103,16 +103,6 @@
         </component>
     </settings>
 
-
-    <settings pass="oobeSystem">
-        <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-             <Reseal>
-                <ForceShutdownNow>false</ForceShutdownNow>
-                <Mode>Audit</Mode>
-            </Reseal>
-        </component>
-    </settings>
-
     <settings pass="auditUser">
         <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS"
             xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
@@ -236,26 +226,77 @@
                 </RunSynchronousCommand>
 
                 <RunSynchronousCommand wcm:action="add">
-                    <Path>powershell F:\common\activate-winrm.ps1</Path>
+                    <Path>powershell F:\common\winrm.ps1</Path>
                     <Order>18</Order>
                     <Description>Activate WinRM</Description>
                 </RunSynchronousCommand>
 
                 <RunSynchronousCommand wcm:action="add">
                     <Path>powershell F:\common\setup-powercfg.ps1</Path>
-                    <Order>19</Order>
+                    <Order>1</Order>
                     <Description>Setup powercfg</Description>
                 </RunSynchronousCommand>
 
-                <RunSynchronousCommand wcm:action="add">
-                    <Path>powershell F:\common\reboot-in-oobe.ps1</Path>
-                    <Order>20</Order>
-                    <Description>Sysprep reseal in OOBE mode</Description>
-                    <WillReboot>Never</WillReboot>
-                </RunSynchronousCommand>
+                <!-- <RunSynchronousCommand wcm:action="add"> -->
+                    <!-- <Path>powershell F:\common\reboot-in-oobe.ps1</Path> -->
+                    <!-- <Order>2</Order> -->
+                    <!-- <Description>Sysprep reseal in OOBE mode</Description> -->
+                    <!-- <WillReboot>Never</WillReboot> -->
+                <!-- </RunSynchronousCommand> -->
 
             </RunSynchronous>
+            <Reseal>
+                <Mode>OOBE</Mode>
+            </Reseal>
         </component>
+    </settings>
+
+    <settings pass="oobeSystem">
+        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <AutoLogon>
+                <Password>
+                    <Value>packer</Value>
+                    <PlainText>true</PlainText>
+                </Password>
+                <Enabled>true</Enabled>
+                <Username>packer</Username>
+            </AutoLogon>
+            <UserAccounts>
+                <AdministratorPassword>
+                    <Value>packer</Value>
+                    <PlainText>true</PlainText>
+                </AdministratorPassword>
+                <LocalAccounts>
+                    <LocalAccount wcm:action="add">
+                        <Password>
+                            <Value>packer</Value>
+                            <PlainText>true</PlainText>
+                        </Password>
+                        <Group>administrators</Group>
+                        <DisplayName>Packer</DisplayName>
+                        <Name>packer</Name>
+                        <Description>Packer User</Description>
+                    </LocalAccount>
+                </LocalAccounts>
+            </UserAccounts>
+            <RegisteredOwner/>
+            <FirstLogonCommands>
+                <SynchronousCommand wcm:action="add">
+                    <!-- Could add '-windowstyle hidden' so running Windows don't appear, but that's not really required for this boot script. -->
+                    <!-- Note that due to Window's command-line handling of floppy drive, the file path gets dropped and the name uppercased.  -->
+                    <CommandLine>C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -executionpolicy bypass -noprofile -file F:\common\winrm.ps1</CommandLine>
+                    <Description>Configure WinRM</Description>
+                    <Order>1</Order>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>
+            </FirstLogonCommands>
+        </component>
+        <!-- <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> -->
+             <!-- <Reseal> -->
+                <!-- <ForceShutdownNow>false</ForceShutdownNow> -->
+                <!-- <Mode>Audit</Mode> -->
+            <!-- </Reseal> -->
+        <!-- </component> -->
     </settings>
 
     <cpi:offlineImage cpi:source="wim:c:/temp/2016/sources/install.wim#Windows Server 2016 SERVERSTANDARD" xmlns:cpi="urn:schemas-microsoft-com:cpi" />
