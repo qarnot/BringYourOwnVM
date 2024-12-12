@@ -1,5 +1,5 @@
 all:
-	~/venv/bin/pyinstaller -F --collect-all pyfiglet --onefile --windowed cli.py
+	pyinstaller -F --collect-all pyfiglet --onefile --windowed cli.py
 	mv dist/* .
 	rm -rf ./build dist *.spec
 
