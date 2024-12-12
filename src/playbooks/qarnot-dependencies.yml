@@ -4,11 +4,6 @@
     name: jq
   become: true
 
-- name: qarnot dependencies | Installing nfs-common
-  apt:
-    name: nfs-common
-  become: true
-
 - name: qarnot dependencies | Installing curl
   apt:
     name: curl

@@ -1,0 +1,58 @@
+#cloud-config
+autoinstall:
+  version: 1
+  ssh:
+    install-server: true
+    allow-pw: true
+  locale: en_US.UTF-8
+  keyboard:
+    layout: fr
+  apt:
+    fallback: offline-install
+
+  shutdown: reboot # poweroff
+  late-commands:
+    - |
+
+      echo 'Autoinstallation complete'
+    - sudo chmod +r /target/etc/cloud/cloud.cfg.d/*.cfg
+    # - |
+    #   echo 'disable_network_activation: true' | sudo tee -a /target/etc/cloud/cloud.cfg.d/99-disable-network-activation.cfg
+    # - sudo chmod 711 /target/etc/netplan
+  user-data:
+    runcmd:
+      - sudo systemctl enable ssh --now
+    timezone: Europe/Paris # more generic
+    hostname: qvm
+    disable_root: false
+    ssh_pwauth: true
+    users:
+      - default
+      - root
+      - name: boo
+        gecos: boo
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        groups: [adm, users, sudo, cdrom]
+        shell: /bin/bash
+        lock_passwd: false
+    chpasswd:
+      expire: false
+      users:
+        - name: root
+          password: ubuntu
+          type: text
+        - name: ubuntu
+          password: ubuntu
+          type: text
+        - name: boo
+          password: boobidou
+          type: text
+    packages:
+      - zsh
+      - tree
+      - qemu-guest-agent
+      - fish
+
+    package_update: true
+    package_upgrade: true
+    package_reboot_if_required: true
