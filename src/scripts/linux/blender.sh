@@ -1,14 +1,15 @@
 #!/bin/sh
 
-sudo apt -y install curl
+sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/3bf863cc.pub
+sudo apt-get update
 
 sudo apt-get -y install software-properties-common 
 sudo add-apt-repository universe
 sudo apt-get update
 sudo apt-get -y install file libasyncns0 \
-                       libcaca0 libdc1394-22 libexpat1 libfftw3-3 libflac8 \
+                       libcaca0 libdc1394-dev libexpat1 libfftw3-dev libflac-dev \
                        libfreetype6 libgl1-mesa-dri libgl1-mesa-glx libglapi-mesa glew-utils \
-                       libglu1-mesa libgomp1 libgsm1 libjack-jackd2-0 libjpeg-turbo8 libjpeg8 \
+                       libglu1-mesa libgomp1 libgsm1 libjack-jackd2-0 libjpeg-turbo-progs libjpeg-dev \
                        libmagic1 libogg0 libopenal-data libopenal1 \
                        liborc-0.4-0 libpulse0 libraw1394-11 libsamplerate0 \
                        libsdl1.2debian libsndfile1 libspeex1 libsqlite3-0 libtheora0 \
