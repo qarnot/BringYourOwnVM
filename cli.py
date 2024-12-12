@@ -94,7 +94,27 @@ def configure_scripts_dir(user_config: dict, conf: config.Config) -> None:
         scripts = ["/" + item for item in scripts]
 
     scripts.append(vars.default_script_linux if user_config[vars.os_guest] == "linux" else vars.default_script_win)
+    scripts.append(vars.default_script_cloud_init)
     user_config.update({vars.scripts: scripts})
+
+    return None
+
+
+def configure_playbooks_dir(user_config: dict, conf: config.Config) -> None:
+    from distutils.dir_util import copy_tree
+
+    playbooks = []
+
+    if user_config[vars.playbooks_dir] == "":
+        user_config.pop(vars.playbooks_dir)
+    else:
+        playbooks_dir_path = pathlib.Path(user_config[vars.playbooks_dir])
+        playbooks = copy_tree(user_config[vars.playbooks_dir], conf.out_path.joinpath(playbooks_dir_path.name))
+        playbooks = ["/" + item for item in playbooks]
+
+    playbooks.append(vars.upgrade_playbook)
+    playbooks.append(vars.qarnot_playbook)
+    user_config.update({vars.playbooks: playbooks})
 
     return None
 
@@ -104,6 +124,7 @@ def prune_user_config(user_config: dict, conf: config.Config) -> bool:
     copy = configure_iso_path(user_config)
 
     configure_scripts_dir(user_config, conf)
+    configure_playbooks_dir(user_config, conf)
 
     to_pop = [vars.confirm]
 
@@ -123,6 +144,34 @@ def setup_user_config(conf: config.Config, user_config: dict) -> bool:
     user_config.update({vars.headless: "true"})
 
     copy = prune_user_config(user_config, conf)
+
+    print(user_config)
+
+    if vars.files_dir in user_config:
+        from distutils.dir_util import copy_tree
+
+        files_dir_path = pathlib.Path(user_config[vars.files_dir])
+        files = copy_tree(user_config[vars.files_dir], conf.out_path.joinpath(files_dir_path.name))
+        user_config.update({vars.files_dir: "/" + str(conf.out_path.joinpath(files_dir_path.name))})
+
+    if vars.playbooks_dir in user_config:
+        from distutils.dir_util import copy_tree
+
+        playbooks_dir_path = pathlib.Path(user_config[vars.playbooks_dir])
+        playbooks = copy_tree(user_config[vars.playbooks_dir], conf.out_path.joinpath(playbooks_dir_path.name))
+        user_config.update({vars.playbooks_dir: "/" + str(conf.out_path.joinpath(playbooks_dir_path.name))})
+
+    if vars.preseed_path in user_config:
+        preseed_path = pathlib.Path(user_config[vars.preseed_path])
+        print(preseed_path)
+        copy_file(preseed_path, conf.out_path.joinpath(preseed_path.name))
+        user_config.update({vars.preseed_path: "/" + str(conf.out_path.joinpath(preseed_path.name))})
+        user_config.update({vars.preseed_file: str(preseed_path.name)})
+
+    if vars.cloud_init_path in user_config:
+        cloud_init_path = pathlib.Path(user_config[vars.cloud_init_path])
+        copy_file(cloud_init_path, conf.out_path.joinpath(cloud_init_path.name))
+        user_config.update({vars.cloud_init_path: "/" + str(conf.out_path.joinpath(cloud_init_path.name))})
 
     if vars.iso_path in user_config:
         path = pathlib.Path(user_config[vars.iso_path])

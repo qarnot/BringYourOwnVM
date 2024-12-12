@@ -57,6 +57,12 @@ headless = "headless"
 http_dir = "http_dir"
 scripts_dir = "scripts_dir"
 root_password = "root_password"
+playbooks_dir = "playbooks_dir"
+files_dir = "files_dir"
+preseed_path = "preseed_path"
+preseed_file = "preseed_file"
+cloud_init_path = "cloud_init_path"
+playbooks = "playbook_files"
 
 
 confirm = "confirm"
@@ -96,4 +102,7 @@ windows_specific = {
 }
 
 default_script_linux = "./scripts/linux/script1.sh"
+default_script_cloud_init = "./scripts/linux/cloud_init.sh"
 default_script_win = "./scripts/win/script1.bat"
+upgrade_playbook = "./playbooks/playbook-upgrade.yml"
+qarnot_playbook = "./playbooks/playbook-qarnot.yml"

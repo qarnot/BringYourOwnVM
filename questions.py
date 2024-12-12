@@ -16,19 +16,20 @@ questions = [
         "message": lambda result:  "Which Operating System does your VM use ?" if result["disk_image"] == "true" else "Which Operating System do you want ?",
         "type": "rawlist",
         "mandatory": True,
-        "choices": ["Windows", "GNU/Linux"],
+        "choices": lambda result: ["Windows", "GNU/Linux"]
+        if result["disk_image"] == "false"
+        else ["GNU/Linux"],
         "filter": lambda result: "windows" if result == "Windows" else "linux",
-        # "when": lambda result: result["disk_image"] == "true",
     },
-    # {
-    #     "name": "os_guest",
-    #     "message": "Which Operating System do you want ?",
-    #     "type": "rawlist",
-    #     "mandatory": True,
-    #     "choices": ["Windows", "GNU/Linux"],
-    #     "filter": lambda result: "windows" if result == "Windows" else "linux",
-    #     "when": lambda result: result["disk_image"] == "false",
-    # },
+    {
+        "name": "distro",
+        "message": lambda result:  "Which Linux distribution do you want to use ?",
+        "type": "rawlist",
+        "mandatory": True,
+        "choices": lambda result: ["Debian", "Ubuntu Server", "Ubuntu Desktop"],
+        "filter": lambda result: "debian" if result == "Debian" else "ubuntu_server" if result == "Ubuntu Server" else "ubuntu_desktop",
+        "when": lambda result: result["os_guest"] == "linux"
+    },
     {
         "name": "root_enable",
         "message": "Do you want to enable the root user ?",
@@ -52,62 +53,54 @@ questions = [
         "type": "input",
         "mandatory": True,
         "validate": EmptyInputValidator(),
-        # "when": lambda result: result["disk_image"] == "true" and result["os_guest"] == "linux",
     },
     {
         "name": "ssh_password",
         "message": lambda result: "Provide the password of this user for SSH connections:" if result["disk_image"] == "true" and result["os_guest"] == "linux" else "Provide a password for this user:",
         "type": "password",
         "transformer": lambda _: "[hidden]",
-        # "when": lambda result: result["disk_image"] == "true" and result["os_guest"] == "linux",
     },
-    # {
-    #     "name": "ssh_username",
-    #     "message": "Provide a username for the user to be created:",
-    #     "type": "input",
-    #     "mandatory": True,
-    #     "validate": EmptyInputValidator(),
-    #     "when": lambda result: result["disk_image"] == "false" and result["os_guest"] == "linux",
-    #     # "when": lambda result: not result["root_enable"]
-    # },
-    # {
-    #     "name": "ssh_username",
-    #     "message": "Provide a username for the user to be created:",
-    #     "type": "input",
-    #     "when": lambda result: result["root_enable"]
-    # },
-    # {
-    #     "name": "ssh_password",
-    #     "message": "Provide a password for this user:",
-    #     "type": "password",
-    #     "transformer": lambda _: "[hidden]",
-    #     "when": lambda result: result["disk_image"] == "false" and result["os_guest"] == "linux",
-    # },
     {
         "name": "iso_path",
         "message": lambda result: "Please, specify the path to your VM (qcow2 format required):" if result["disk_image"] == "true" else "Please, specify the path to your ISO:",
         "type": "filepath",
         "validate": PathValidator(is_file=True, message="Input is not a file"),
         "mandatory": True,
-        # "when": lambda result: result["disk_image"] == "true",
     },
-    # {
-    #     "name": "iso_path",
-    #     "message": "Please, specify the path (absolute) to your ISO:",
-    #     "type": "filepath",
-    #     "validate": lambda result: PathValidator(is_file=True, message="Input is not a file") or result == "",
-    #     # "mandatory": True,
-    #     "when": lambda result: result["disk_image"] == "false",
-    # },
     {
         "name": "iso_checksum",
         "message": "Please, specify the checksum:",
         "type": "input",
-        # "filter": lambda result:
+    },
+    {
+        "name": "preseed_path",
+        "message": "Specify the path to a preseed file:",
+        "type": "filepath",
+        "validate": PathValidator(is_file=True, message="Input is not a file"),
+        "when": lambda result: result["distro"] == "debian"
+    },
+    {
+        "name": "cloud_init_path",
+        "message": "Provide the path to a directory containing cloud-init\nconfiguration files (user-data, meta-data, network-data):",
+        "type": "filepath",
+        "validate": PathValidator(is_dir=True, message="Input is not a directory"),
+        "when": lambda result: result["distro"] != "debian"
     },
     {
         "name": "scripts_dir",
         "message": "Provide the path to a directory containing additional configuration scripts:",
+        "type": "filepath",
+        "validate": PathValidator(is_dir=True, message="Input is not a directory"),
+    },
+    {
+        "name": "playbooks_dir",
+        "message": "Provide the path to a directory containing additional Ansible playbooks:",
+        "type": "filepath",
+        "validate": PathValidator(is_dir=True, message="Input is not a directory"),
+    },
+    {
+        "name": "files_dir",
+        "message": "Provide the path to a directory containing additional files to copy inside the VM:",
         "type": "filepath",
         "validate": PathValidator(is_dir=True, message="Input is not a directory"),
     },
