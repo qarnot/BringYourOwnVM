@@ -25,17 +25,17 @@ variable "country" {
 
 variable "cpus" {
   type    = string
-  default = "1"
+  default = "2"
 }
 
 variable "description" {
   type    = string
-  default = "x86_64 Debian Bookworm 12.x"
+  default = ""
 }
 
 variable "disk_size" {
   type    = string
-  default = "7500"
+  default = "10G"
 }
 
 variable "domain" {
@@ -46,6 +46,11 @@ variable "domain" {
 variable "guest_os" {
   type    = string
   default = "linux"
+}
+
+variable "distro" {
+  type    = string
+  default = ""
 }
 
 variable "headless" {
@@ -110,7 +115,7 @@ variable "locale" {
 
 variable "memory" {
   type    = string
-  default = "1024"
+  default = "4096"
 }
 
 variable "mirror" {
@@ -362,4 +367,24 @@ variable "root_password" {
 variable "root_enable" {
   type = bool
   default = false
+}
+
+variable "files_dir" {
+  type = string
+  default = ""
+}
+
+variable "cloud_init_path" {
+  type = string
+  default = ""
+}
+
+variable "playbook_files" {
+  type = list(string)
+  default = null
+}
+
+variable "preseed_path" {
+  type = string
+  default = null
 }

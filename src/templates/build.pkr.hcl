@@ -17,6 +17,28 @@ build {
   name = "linux-base"
   sources = ["source.qemu.linux"]
 
+  # provisioner "shell" {
+  #   binary = false
+  #   execute_command = "echo '${var.ssh_password}' | {{ .Vars }} sudo -E -S '{{ .Path }}'"
+  #   inline = ["sudo apt -y install cloud-init"]
+  # }
+
+  # provisioner "shell" {
+  #   binary = false
+  #   execute_command = "echo '${var.ssh_password}' | {{ .Vars }} sudo -E -S '{{ .Path }}'"
+  #   inline = ["sudo cloud-init init"]
+  #   expect_disconnect = true
+  # }
+
+  # provisioner "shell" {
+  #   execute_command = "echo '${var.ssh_password}' | {{ .Vars }} sudo -E -S '{{ .Path }}'"
+  #   inline = [
+  #     "echo cloud-init status... waiting",
+  #     "sudo cloud-init status --wait || sudo cloud-init status --long"
+  #   ]
+  #   expect_disconnect = true
+  # }
+
   provisioner "shell" {
     binary = false
     execute_command = "echo '${var.ssh_password}' | {{ .Vars }} sudo -E -S '{{ .Path }}'"
@@ -24,7 +46,7 @@ build {
   }
 
   provisioner "file" {
-    sources = [ "./files/" ]
+    sources = [ "${var.files_dir}" ]
     destination = "/job/"
   }
 
@@ -40,10 +62,10 @@ build {
   }
 
   provisioner "ansible" {
-    ansible_env_vars = ["ANSIBLE_HOST_KEY_CHECKING=False"]
+  # ansible_env_vars = ["ANSIBLE_HOST_KEY_CHECKING=False"]
     playbook_file    = "${path.root}/../playbooks/playbook-upgrade.yml"
-    user             = "${var.ssh_username}"
-    extra_arguments = [ "--scp-extra-args", "'-O'" ]
+  # user             = "${var.ssh_username}"
+  # extra_arguments = [ "--scp-extra-args", "'-O'" ]
   }
 
   provisioner "ansible" {
@@ -51,6 +73,13 @@ build {
     playbook_file    = "${path.root}/../playbooks/playbook-qarnot.yml"
     user             = "${var.ssh_username}"
     extra_arguments = [ "--scp-extra-args", "'-O'" ]
+  }
+
+  provisioner "ansible-local" {
+    # ansible_env_vars = ["ANSIBLE_HOST_KEY_CHECKING=False"]
+    # user             = "${var.ssh_username}"
+    # extra_arguments  = [ "--scp-extra-args", "'-O'" ]
+    playbook_files   = var.playbook_files
   }
 
   # provisioner "ansible" {
@@ -83,6 +112,14 @@ build {
   #   sources = [ "./files/" ]
   #   destination = "/job/"
   # }
+
+  provisioner "shell" {
+    inline = [
+      "echo cloud-init status... waiting",
+      "sudo cloud-init status --wait || sudo cloud-init status --long"
+    ]
+    expect_disconnect = true
+  }
 
   provisioner "shell" {
     binary = var.binary
@@ -131,6 +168,7 @@ build {
 
   provisioner "windows-shell" {
     scripts = var.scripts
+    expect_disconnect = true
   }
 
   post-processors {

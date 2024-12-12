@@ -73,64 +73,57 @@ source "qemu" "generic" {
 
 source "qemu" "linux" {
   accelerator = "kvm"
-  # still not perfect, use "local" to add logic and gain more genericity ?
-  # boot_command         = local.boot_command
-  boot_command          = [
-    "<wait><wait><wait><esc><wait><wait><wait>",
-    "/install.amd/vmlinuz ",
-    "initrd=/install.amd/initrd.gz ",
-    "auto=true ",
-    "url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/${var.preseed_file} ",
-    "hostname=${var.vm_name} ",
-    "domain=${var.domain} ",
-    "interface=auto ",
-    "vga=788 noprompt quiet --<enter>"
-  ]
+  boot_command         = local.boot_command
   boot_wait            = var.boot_wait
-  communicator         = var.communicator
   cpus                 = var.cpus
-  disk_cache           = var.disk_cache
-  disk_compression     = var.disk_compression
-  disk_discard         = var.disk_discard
-  disk_image           = var.disk_image
   disk_interface       = var.disk_interface
-  disk_size            = var.disk_size
   format               = var.format
   headless             = var.headless
-  http_content         = { "/${var.preseed_file}" = templatefile(var.preseed_file, { var = var }) }
-  host_port_max        = var.host_port_max
-  host_port_min        = var.host_port_min
-  # http_content         = local.http_content
   iso_checksum         = var.iso_checksum
-  iso_skip_cache       = var.iso_skip_cache
-  iso_target_extension = var.iso_target_extension
   iso_url = "${var.iso_path_external}/${var.iso_file}"
-  machine_type                 = var.machine_type
   memory                       = var.memory
-  net_device                   = var.net_device
   output_directory             = local.output_directory
-  qemu_binary                  = var.qemu_binary
   # still not perfect, use "local" to add logic and gain more genericity ?
   shutdown_command             = "echo '${var.ssh_password}' | sudo -E -S poweroff"
-  shutdown_timeout             = var.shutdown_timeout
-  skip_compaction              = var.skip_compaction
-  skip_nat_mapping             = var.skip_nat_mapping
-  ssh_agent_auth               = var.ssh_agent_auth
-  ssh_clear_authorized_keys    = var.ssh_clear_authorized_keys
-  ssh_disable_agent_forwarding = var.ssh_disable_agent_forwarding
-  ssh_file_transfer_method     = var.ssh_file_transfer_method
-  ssh_handshake_attempts       = var.ssh_handshake_attempts
-  ssh_keep_alive_interval      = var.ssh_keep_alive_interval
   ssh_password                 = var.ssh_password
-  ssh_port                     = var.ssh_port
-  ssh_pty                      = var.ssh_pty
-  ssh_timeout                  = var.ssh_timeout
   ssh_username                 = var.ssh_username
-  use_default_display          = var.use_default_display
+  ssh_timeout                  = var.ssh_timeout
   vm_name                      = var.vm_name
-  vnc_bind_address             = var.vnc_vrdp_bind_address
-  vnc_port_max                 = var.vnc_vrdp_port_max
-  vnc_port_min                 = var.vnc_vrdp_port_min
+  http_content                 = local.http_content
+  # http_content         = {
+  #   "/${var.preseed_file}" = templatefile(abspath(var.preseed_path), { var = var })  #templatefile(var.preseed_file, { var = var })
+  #   "/user-data" = file(abspath("${var.cloud_init_path}/user-data"))
+  #   "/meta-data" = file(abspath("${var.cloud_init_path}/meta-data"))
+  #   # "/network-data" = file("${var.cloud_init_path}/network-data")
+  # }
+  # communicator                 = var.communicator
+  # disk_size                    = var.disk_size
+  # disk_image                   = var.disk_image
+  # host_port_max                = var.host_port_max
+  # host_port_min                = var.host_port_min
+  # net_device                   = var.net_device
+  # qemu_binary                  = var.qemu_binary
+  # shutdown_timeout             = var.shutdown_timeout
+  # ssh_port                     = var.ssh_port
+  # ssh_pty                      = var.ssh_pty
+  # ssh_clear_authorized_keys    = var.ssh_clear_authorized_keys
+  # ssh_disable_agent_forwarding = var.ssh_disable_agent_forwarding
+  # ssh_file_transfer_method     = var.ssh_file_transfer_method
+  # ssh_handshake_attempts       = var.ssh_handshake_attempts
+  # ssh_keep_alive_interval      = var.ssh_keep_alive_interval
+  # iso_skip_cache               = var.iso_skip_cache
+  # disk_cache                   = var.disk_cache
+  # disk_compression             = var.disk_compression
+  # disk_discard                 = var.disk_discard
+  # machine_type                 = var.machine_type
+  # skip_compaction              = var.skip_compaction
+  # skip_nat_mapping             = var.skip_nat_mapping
+  # ssh_agent_auth               = var.ssh_agent_auth
+  # use_default_display          = var.use_default_display
+  # iso_target_extension         = var.iso_target_extension
+  # vnc_bind_address             = var.vnc_vrdp_bind_address
+  # vnc_port_max                 = var.vnc_vrdp_port_max
+  # vnc_port_min                 = var.vnc_vrdp_port_min
 }
 
 source "qemu" "windows" {
@@ -196,18 +189,44 @@ source "qemu" "windows" {
 
 locals {
   output_directory = var.output_directory
-  # http_content = var.disk_image == false ? { "/${var.http_dir}" = templatefile(var.http_dir, { var = var }) } : null
+  http_content = var.guest_os == "linux" && var.distro == "debian" ? {
+    "/${var.preseed_file}" = templatefile(abspath(var.preseed_path), { var = var })
+  } : {
+    "/user-data" = file(abspath("${var.cloud_init_path}/user-data"))
+    "/meta-data" = file(abspath("${var.cloud_init_path}/meta-data"))
+    # "/network-data" = file("${var.cloud_init_path}/network-data")
+  }
+  # http_content = var.distro == "debian" ? (
+  # var.cloud_init_path != null ? {
+  # "/${var.preseed_file}" = templatefile(abspath(var.preseed_path), { var = var })
+  # "/user-data" = file(abspath("${var.cloud_init_path}/user-data"))
+  # "/meta-data" = file(abspath("${var.cloud_init_path}/meta-data"))
+  # # "/network-data" = file("${var.cloud_init_path}/network-data")
+  #     } : { "/${var.preseed_file}" = templatefile(abspath(var.preseed_path), { var = var }) }
+  # ) : {
+  #     "/user-data" = file(abspath("${var.cloud_init_path}/user-data"))
+  #     "/meta-data" = file(abspath("${var.cloud_init_path}/meta-data"))
+  #     # "/network-data" = file("${var.cloud_init_path}/network-data")   
+  # }
   boot_command = var.disk_image == false ? (
-    var.guest_os == "linux" ? [
-    "<wait><wait><wait><esc><wait><wait><wait>",
-    "/install.amd/vmlinuz ",
-    "initrd=/install.amd/initrd.gz ",
-    "auto=true ",
-    "url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/${var.preseed_file} ",
-    "hostname=${var.vm_name} ",
-    "domain=${var.domain} ",
-    "interface=auto ",
-    "vga=788 noprompt quiet --<enter>"
-  ] : null
+    var.guest_os == "linux" ? (
+      var.distro == "debian" ? [
+      "<wait><wait><wait><esc><wait><wait><wait>",
+      "/install.amd/vmlinuz ",
+      "initrd=/install.amd/initrd.gz ",
+      "auto=true ",
+      "url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/${var.preseed_file} ",
+      "hostname=${var.vm_name} ",
+      "domain=${var.domain} ",
+      "interface=auto ",
+      "vga=788 noprompt quiet --<enter>"
+    ] : [
+      "<spacebar><wait><spacebar><wait><spacebar><wait><spacebar><wait><spacebar><wait>",
+      "e<wait>",
+      "<down><down><down><end>",
+      " autoinstall ds=nocloud-net\\;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/",
+      "<f10>"
+    ]
+  ) : null
   ) : null
 }
