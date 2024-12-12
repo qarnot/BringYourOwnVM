@@ -1,9 +1,6 @@
 docker
-json
+json5
 argparse
-pathlib
-shutil
-filecmp
-hashlib
 pyfiglet
-InquirerPy
+inquirerpy
+pyinstaller
