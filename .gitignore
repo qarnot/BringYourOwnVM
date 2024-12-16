@@ -2,6 +2,6 @@ src/qvm.qcow2
 src/qvm.qcow2.sha256
 src/demo/iso
 src/plugins
-src/provisions/scripts/install-resources/software
+src/provisions/scripts/install-resources/install-scripts/software/
 src/cli/__pycache__
 output

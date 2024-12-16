@@ -56,6 +56,11 @@ registry (`docker-qlab.qarnot.net`), therefore the user must be logged in to
 the internal registry. See the `docker-login` man page for further
 information.**
 
+For now, the tested and usable ISOs are:
+- Ubuntu 24.01 Desktop
+- Ubuntu 24.01 Live-Server
+- Debian 12.8.0 netinstall
+
 ### Provisioning a VM (GNU/Linux-only)
 
 To provision a VM, the user can make use of several technologies:
