@@ -64,7 +64,7 @@ questions = [
         "name": "iso_path",
         "message": lambda result: "Please, specify the path to your VM (qcow2 format required):" if result["disk_image"] == "true" else "Please, specify the path to your ISO:",
         "type": "filepath",
-        "validate": PathValidator(is_file=True, message="Input is not a file"),
+        "validate": PathValidator(is_file=True, message="Input is not a file") and EmptyInputValidator(),
         "mandatory": True,
     },
     {
@@ -76,14 +76,16 @@ questions = [
         "name": "preseed_path",
         "message": "Specify the path to a preseed file:",
         "type": "filepath",
-        "validate": PathValidator(is_file=True, message="Input is not a file"),
+        "validate": PathValidator(is_file=True, message="Input is not a file") and EmptyInputValidator(),
+        "mandatory": True,
         "when": lambda result: result["distro"] == "debian"
     },
     {
         "name": "cloud_init_path",
-        "message": "Provide the path to a directory containing cloud-init\nconfiguration files (user-data, meta-data, network-data):",
+        "message": "Provide the path to a directory containing cloud-init\nconfiguration files (user-data, meta-data):",
         "type": "filepath",
-        "validate": PathValidator(is_dir=True, message="Input is not a directory"),
+        "validate": PathValidator(is_dir=True, message="Input is not a directory") and EmptyInputValidator(),
+        "mandatory": True,
         "when": lambda result: result["distro"] != "debian"
     },
     {

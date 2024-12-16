@@ -82,8 +82,6 @@ BUILD="base"
 
 rm -rf ./build/
 
-packer init ./templates;
-
 if [ "$OS_GUEST" = "windows" ]; then
 
   curl -fSL https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso -o virtio-win-0.1.217.iso

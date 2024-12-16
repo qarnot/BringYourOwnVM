@@ -1,7 +1,7 @@
 all:
-	pyinstaller -F --collect-all pyfiglet --onefile --windowed cli.py
+	pyinstaller -F --collect-all pyfiglet --onefile --windowed main.py
 	mv dist/* .
 	rm -rf ./build dist *.spec
 
 clean:
-	$(RM) ./cli
+	$(RM) ./main

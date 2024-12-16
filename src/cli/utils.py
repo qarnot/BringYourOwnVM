@@ -1,7 +1,8 @@
 import json
 import pathlib
+from sys import exit
 
-import vars
+from src.cli import vars
 
 
 def json_format(

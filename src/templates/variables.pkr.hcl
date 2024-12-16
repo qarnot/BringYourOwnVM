@@ -371,7 +371,7 @@ variable "root_enable" {
 
 variable "files_dir" {
   type = string
-  default = ""
+  default = "./demo/files"
 }
 
 variable "cloud_init_path" {

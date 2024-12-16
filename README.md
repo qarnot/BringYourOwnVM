@@ -67,6 +67,14 @@ To provision a VM, the user can make use of several technologies:
 This wide range of technologies is designed to ensure that the tool fits
 seamlessly in the user's workflow.
 
+For the sake of testing, some files are available in `src/demo/`:
+
+- a `debian.preseed` file, it is a generic template which you can directly
+provide to the tool
+- `./cloud-init/`: some cloud-init files which will create a user
+`ubuntu:ubuntu` and `boo:boobidou`
+- `./files/`: a C file with a fibonacci function
+
 ## How it works
 
 Once the tool is launched, follow the instructions. The tool creates a 
@@ -127,3 +135,4 @@ Other constants might be available with the forced constants priviledge.
 - [ ] Improve code quality
 - [ ] Improve compilation process (make it easier, make the final binary run
 faster)
+- [ ] Lighten the image

@@ -1,16 +1,12 @@
 #!/usr/bin/python3
 
-import argparse
+from distutils.dir_util import copy_tree
 from sys import exit
 
-from questions import questions
-from utils import *
-import config
-
-parser = argparse.ArgumentParser(prog=vars.program_command,
-                                 description=vars.program_desc)
-
-parser.add_argument('-v', '--verbose', help='enable the verbose mode', action='store_true')
+from src.cli.questions import questions
+from src.cli.utils import *
+from src.cli import config
+from src.cli import vars
 
 
 def create_var_file(conf: config.Config, user_config: dict,
@@ -94,7 +90,10 @@ def configure_scripts_dir(user_config: dict, conf: config.Config) -> None:
         scripts = ["/" + item for item in scripts]
 
     scripts.append(vars.default_script_linux if user_config[vars.os_guest] == "linux" else vars.default_script_win)
-    scripts.append(vars.default_script_cloud_init)
+    scripts.append(vars.default_script_ansible)
+
+    if user_config[vars.distro] != "debian":
+        scripts.append(vars.default_script_cloud_init)
     user_config.update({vars.scripts: scripts})
 
     return None
@@ -145,21 +144,10 @@ def setup_user_config(conf: config.Config, user_config: dict) -> bool:
 
     copy = prune_user_config(user_config, conf)
 
-    print(user_config)
-
     if vars.files_dir in user_config:
-        from distutils.dir_util import copy_tree
-
         files_dir_path = pathlib.Path(user_config[vars.files_dir])
         files = copy_tree(user_config[vars.files_dir], conf.out_path.joinpath(files_dir_path.name))
         user_config.update({vars.files_dir: "/" + str(conf.out_path.joinpath(files_dir_path.name))})
-
-    if vars.playbooks_dir in user_config:
-        from distutils.dir_util import copy_tree
-
-        playbooks_dir_path = pathlib.Path(user_config[vars.playbooks_dir])
-        playbooks = copy_tree(user_config[vars.playbooks_dir], conf.out_path.joinpath(playbooks_dir_path.name))
-        user_config.update({vars.playbooks_dir: "/" + str(conf.out_path.joinpath(playbooks_dir_path.name))})
 
     if vars.preseed_path in user_config:
         preseed_path = pathlib.Path(user_config[vars.preseed_path])
@@ -170,7 +158,7 @@ def setup_user_config(conf: config.Config, user_config: dict) -> bool:
 
     if vars.cloud_init_path in user_config:
         cloud_init_path = pathlib.Path(user_config[vars.cloud_init_path])
-        copy_file(cloud_init_path, conf.out_path.joinpath(cloud_init_path.name))
+        cloud_inits = copy_tree(cloud_init_path, conf.out_path.joinpath(cloud_init_path.name))
         user_config.update({vars.cloud_init_path: "/" + str(conf.out_path.joinpath(cloud_init_path.name))})
 
     if vars.iso_path in user_config:
@@ -200,7 +188,7 @@ def vm_creation(conf: config.Config, env_dict: dict) -> int:
     client = docker.from_env()
 
     print("Pulling the image ...")
-    # image = client.images.pull(conf.repo, tag=conf.tag)
+    image = client.images.pull(conf.repo, tag=conf.tag)
     print("The Docker image was successfully pulled.")
 
     print("Running the Docker container ...")
@@ -248,8 +236,3 @@ def main(args: any) -> int:
         exit(1)
 
     return ret
-
-
-if __name__ == "__main__":
-    args = parser.parse_args()
-    main(args)

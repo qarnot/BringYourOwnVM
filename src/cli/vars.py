@@ -63,6 +63,7 @@ preseed_path = "preseed_path"
 preseed_file = "preseed_file"
 cloud_init_path = "cloud_init_path"
 playbooks = "playbook_files"
+distro = "distro"
 
 
 confirm = "confirm"
@@ -90,19 +91,20 @@ qemuargs_list = [
 
 windows_specific = {
     disk_interface: "virtio",
-    http_dir: "./scripts/install-resources/install-scripts/",
+    http_dir: "./provisions/scripts/install-resources/install-scripts/",
     communicator: "winrm",
     disk_size: "35G",
     boot_wait: "10m",
     memory: 4096,
-    autounattend_path: "./scripts/Autounattend.xml",
-    init_script_path: "./scripts/install-resources/init/bootstrap.ps1",
-    install_scripts_path: "./scripts/install-resources/install-scripts",
+    autounattend_path: "./provisions/scripts/Autounattend.xml",
+    init_script_path: "./provisions/scripts/install-resources/init/bootstrap.ps1",
+    install_scripts_path: "./provisions/scripts/install-resources/install-scripts",
     # scripts: ["./scripts/install-resources/install-scripts/enable-rdp.bat"]
 }
 
-default_script_linux = "./scripts/linux/script1.sh"
-default_script_cloud_init = "./scripts/linux/cloud_init.sh"
-default_script_win = "./scripts/win/script1.bat"
-upgrade_playbook = "./playbooks/playbook-upgrade.yml"
-qarnot_playbook = "./playbooks/playbook-qarnot.yml"
+default_script_linux = "./provisions/scripts/linux/script1.sh"
+default_script_cloud_init = "./provisions/scripts/linux/cloud_init.sh"
+default_script_ansible = "./provisions/scripts/linux/ansible.sh"
+default_script_win = "./provisions/scripts/win/script1.bat"
+upgrade_playbook = "./provisions/playbooks/playbook-upgrade.yml"
+qarnot_playbook = "./provisions/playbooks/playbook-qarnot.yml"

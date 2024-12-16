@@ -6,7 +6,7 @@ import pathlib
 class Config:
 
     def __init__(self):
-        from vars import _out_path, _in_path, _repo, _tag, _command, _devices_list, _exportable_vars, _var_file_name
+        from src.cli.vars import _out_path, _in_path, _repo, _tag, _command, _devices_list, _exportable_vars, _var_file_name
 
         self.out_path = pathlib.Path(_out_path)
         self.in_path = pathlib.Path(_in_path)

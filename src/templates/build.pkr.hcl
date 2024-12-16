@@ -62,15 +62,15 @@ build {
   }
 
   provisioner "ansible" {
-  # ansible_env_vars = ["ANSIBLE_HOST_KEY_CHECKING=False"]
-    playbook_file    = "${path.root}/../playbooks/playbook-upgrade.yml"
-  # user             = "${var.ssh_username}"
-  # extra_arguments = [ "--scp-extra-args", "'-O'" ]
+    ansible_env_vars = ["ANSIBLE_HOST_KEY_CHECKING=False"]
+    playbook_file    = "${path.root}/../provisions/playbooks/playbook-upgrade.yml"
+    user             = "${var.ssh_username}"
+    extra_arguments = [ "--scp-extra-args", "'-O'" ]
   }
 
   provisioner "ansible" {
     ansible_env_vars = ["ANSIBLE_HOST_KEY_CHECKING=False"]
-    playbook_file    = "${path.root}/../playbooks/playbook-qarnot.yml"
+    playbook_file    = "${path.root}/../provisions/playbooks/playbook-qarnot.yml"
     user             = "${var.ssh_username}"
     extra_arguments = [ "--scp-extra-args", "'-O'" ]
   }
@@ -134,14 +134,14 @@ build {
 
   provisioner "ansible" {
     ansible_env_vars = ["ANSIBLE_HOST_KEY_CHECKING=False"]
-    playbook_file    = "${path.root}/../playbooks/playbook-upgrade.yml"
+    playbook_file    = "${path.root}/../provisions/playbooks/playbook-upgrade.yml"
     user             = "${var.ssh_username}"
     extra_arguments = [ "--scp-extra-args", "'-O'" ]
   }
 
   provisioner "ansible" {
     ansible_env_vars = ["ANSIBLE_HOST_KEY_CHECKING=False"]
-    playbook_file    = "${path.root}/../playbooks/playbook-qarnot.yml"
+    playbook_file    = "${path.root}/../provisions/playbooks/playbook-qarnot.yml"
     user             = "${var.ssh_username}"
     extra_arguments = [ "--scp-extra-args", "'-O'" ]
   }
