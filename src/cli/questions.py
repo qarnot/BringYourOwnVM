@@ -78,7 +78,7 @@ questions = [
         "type": "filepath",
         "validate": PathValidator(is_file=True, message="Input is not a file") and EmptyInputValidator(),
         "mandatory": True,
-        "when": lambda result: result["distro"] == "debian"
+        "when": lambda result: result["disk_image"] == "false" and result["distro"] == "debian"
     },
     {
         "name": "cloud_init_path",
@@ -86,7 +86,7 @@ questions = [
         "type": "filepath",
         "validate": PathValidator(is_dir=True, message="Input is not a directory") and EmptyInputValidator(),
         "mandatory": True,
-        "when": lambda result: result["distro"] != "debian"
+        "when": lambda result: result["disk_image"] == "false" and result["distro"] != "debian"
     },
     {
         "name": "scripts_dir",
@@ -105,6 +105,7 @@ questions = [
         "message": "Provide the path to a directory containing additional files to copy inside the VM:",
         "type": "filepath",
         "validate": PathValidator(is_dir=True, message="Input is not a directory"),
+        "when": lambda result: result["disk_image"] == "false"
     },
     {
         "name": "confirm",
