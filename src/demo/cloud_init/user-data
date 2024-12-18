@@ -39,13 +39,10 @@ autoinstall:
       expire: false
       users:
         - name: root
-          password: ubuntu
+          password: root
           type: text
         - name: ubuntu
           password: ubuntu
-          type: text
-        - name: boo
-          password: boobidou
           type: text
     packages:
       - zsh

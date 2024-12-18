@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from distutils.dir_util import copy_tree
+from shutil import copytree
 from sys import exit
 
 from src.cli.questions import questions
@@ -73,26 +73,26 @@ def enumerate_files(path: str, os: str) -> list[str]:
         if item.is_file():
             res.append(item)
 
-    print(res)
     return res
 
 
 def configure_scripts_dir(user_config: dict, conf: config.Config) -> None:
-    from distutils.dir_util import copy_tree
-
     scripts = []
 
-    if user_config[vars.scripts_dir] == "":
+    if user_config[vars.scripts_dir] == "" or user_config[vars.scripts_dir] == None:
         user_config.pop(vars.scripts_dir)
     else:
         scripts_dir_path = pathlib.Path(user_config[vars.scripts_dir])
-        scripts = copy_tree(user_config[vars.scripts_dir], conf.out_path.joinpath(scripts_dir_path.name))
+        scripts = copytree(user_config[vars.scripts_dir], conf.out_path.joinpath(scripts_dir_path.name), dirs_exist_ok=True)
         scripts = ["/" + item for item in scripts]
 
-    scripts.append(vars.default_script_linux if user_config[vars.os_guest] == "linux" else vars.default_script_win)
-    scripts.append(vars.default_script_ansible)
+    if user_config[vars.os_guest] == "linux":
+        scripts.append(vars.default_script_linux)
+        scripts.append(vars.default_script_ansible)
+    else:
+        scripts.append(vars.default_script_win)
 
-    if user_config[vars.distro] != "debian":
+    if user_config[vars.distro] != "debian" and user_config[vars.os_guest] == "linux":
         scripts.append(vars.default_script_cloud_init)
     user_config.update({vars.scripts: scripts})
 
@@ -100,15 +100,13 @@ def configure_scripts_dir(user_config: dict, conf: config.Config) -> None:
 
 
 def configure_playbooks_dir(user_config: dict, conf: config.Config) -> None:
-    from distutils.dir_util import copy_tree
-
     playbooks = []
 
-    if user_config[vars.playbooks_dir] == "":
+    if user_config[vars.playbooks_dir] == "" or user_config[vars.playbooks_dir] == None:
         user_config.pop(vars.playbooks_dir)
     else:
         playbooks_dir_path = pathlib.Path(user_config[vars.playbooks_dir])
-        playbooks = copy_tree(user_config[vars.playbooks_dir], conf.out_path.joinpath(playbooks_dir_path.name))
+        playbooks = copytree(user_config[vars.playbooks_dir], conf.out_path.joinpath(playbooks_dir_path.name), dirs_exist_ok=True)
         playbooks = ["/" + item for item in playbooks]
 
     playbooks.append(vars.upgrade_playbook)
@@ -146,19 +144,18 @@ def setup_user_config(conf: config.Config, user_config: dict) -> bool:
 
     if vars.files_dir in user_config:
         files_dir_path = pathlib.Path(user_config[vars.files_dir])
-        files = copy_tree(user_config[vars.files_dir], conf.out_path.joinpath(files_dir_path.name))
+        files = copytree(user_config[vars.files_dir], conf.out_path.joinpath(files_dir_path.name), dirs_exist_ok=True)
         user_config.update({vars.files_dir: "/" + str(conf.out_path.joinpath(files_dir_path.name))})
 
     if vars.preseed_path in user_config:
         preseed_path = pathlib.Path(user_config[vars.preseed_path])
-        print(preseed_path)
         copy_file(preseed_path, conf.out_path.joinpath(preseed_path.name))
         user_config.update({vars.preseed_path: "/" + str(conf.out_path.joinpath(preseed_path.name))})
         user_config.update({vars.preseed_file: str(preseed_path.name)})
 
     if vars.cloud_init_path in user_config:
         cloud_init_path = pathlib.Path(user_config[vars.cloud_init_path])
-        cloud_inits = copy_tree(cloud_init_path, conf.out_path.joinpath(cloud_init_path.name))
+        cloud_inits = copytree(cloud_init_path, conf.out_path.joinpath(cloud_init_path.name), dirs_exist_ok=True)
         user_config.update({vars.cloud_init_path: "/" + str(conf.out_path.joinpath(cloud_init_path.name))})
 
     if vars.iso_path in user_config:
