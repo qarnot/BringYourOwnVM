@@ -1,7 +1,9 @@
 src/qvm.qcow2
 src/qvm.qcow2.sha256
 src/demo/iso
-src/plugins
+src/build
+src/packer-manifest.json
+src/*.log
 src/provisions/scripts/install-resources/install-scripts/software/
 src/cli/__pycache__
 output

@@ -1,4 +1,7 @@
-src/iso
+src/demo/iso
 src/qvm.qcow2
 src/build
+src/packer-manifest.json
+src/*.log
 src/qvm.qcow2.sha256
+src/provisions/scripts/install-resources/install-scripts/software/
