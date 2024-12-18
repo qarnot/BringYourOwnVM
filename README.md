@@ -76,7 +76,7 @@ For the sake of testing, some files are available in `src/demo/`:
 - a `src/demo/debian.preseed` file, it is a generic template which you can
 directly provide to the tool when creating a Debian VM
 - `src/demo/cloud_init/`: some cloud-init files which will create a user
-`ubuntu:ubuntu` and `boo:boobidou` (`username:password` format)
+`ubuntu:ubuntu` (`username:password` format)
 - `src/demo/files/`: a directory containing a C file with a fibonacci function,
 this folder will be copied inside the VM providing some files at buildtime.
 
