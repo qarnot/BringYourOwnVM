@@ -376,7 +376,7 @@ variable "files_dir" {
 
 variable "cloud_init_path" {
   type = string
-  default = ""
+  default = "./demo/cloud_init"
 }
 
 variable "playbook_files" {

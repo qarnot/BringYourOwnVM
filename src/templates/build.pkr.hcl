@@ -168,7 +168,24 @@ build {
 
   provisioner "windows-shell" {
     scripts = var.scripts
-    expect_disconnect = true
+  }
+
+  post-processors {
+    post-processor "checksum" {
+      checksum_types = ["sha256"]
+      output = "build/${var.vm_name}.sha256"
+    }
+    post-processor "manifest" {
+    }
+  }
+}
+
+build {
+  name = "windows-overlay"
+  sources = ["source.qemu.windows"]
+
+  provisioner "windows-shell" {
+    scripts = var.scripts
   }
 
   post-processors {

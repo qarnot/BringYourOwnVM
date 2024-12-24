@@ -2,6 +2,7 @@ import json
 import pathlib
 from sys import exit
 
+from src.cli import config
 from src.cli import vars
 
 
@@ -69,5 +70,20 @@ def copy_file(path_src: pathlib.Path, path_dst: pathlib.Path) -> None:
     except Exception:
         print("Error: An error occured while copying the file.")
         exit(1)
+
+    return None
+
+
+def clean_build_dir(conf: config.Config, exception: list[str]) -> None:
+    import shutil
+
+    path = pathlib.Path(conf.out_path)
+
+    for item in path.iterdir():
+        if item.name not in exception:
+            if item.is_file():
+                item.unlink()
+            else:
+                shutil.rmtree(item)
 
     return None

@@ -23,29 +23,33 @@ questions = [
     },
     {
         "name": "distro",
-        "message": lambda result:  "Which Linux distribution do you want to use ?",
+        "message": "Which Linux distribution do you want to use ?",
         "type": "rawlist",
         "mandatory": True,
         "choices": lambda result: ["Debian", "Ubuntu Server", "Ubuntu Desktop"],
         "filter": lambda result: "debian" if result == "Debian" else "ubuntu_server" if result == "Ubuntu Server" else "ubuntu_desktop",
         "when": lambda result: result["os_guest"] == "linux"
     },
-    # {
-    #     "name": "disk_size",
-    #     "message": "Which size the disk should be for the VM to work ?\n(At least 10G for Debian/Ubuntu and 30G for Windows)",
-    #     "type": "input",
-    #     "mandatory": True,
-    #     "filter": lambda result: f"{result}G",
-    #     "validate": NumberValidator(),
-    #     # "when": lambda result: result["os_guest"] == "linux"
-    # },
-    # {
-    #     "name": "vm_name",
-    #     "message": "What name for the VM ?",
-    #     "type": "input",
-    #     # "mandatory": True,
-    #     # "when": lambda result: result["os_guest"] == "linux"
-    # },
+    {
+        "name": "vm_name",
+        "message": "What name for the VM ?",
+        "type": "input",
+        "mandatory": True,
+        "validate": EmptyInputValidator(),
+        # "when": lambda result: result["os_guest"] == "linux"
+    },
+    {
+        "name": "disk_size",
+        "message": "Which size the disk should be for the VM to work ?\n(At least 10G for Debian/Ubuntu and 30G for Windows)",
+        "type": "number",
+        "mandatory": True,
+        "filter": lambda result: int(result),
+        "default": 10,
+        # "min_allowed": 10,
+        "max_allowed": 1000,
+        "validate": lambda result: EmptyInputValidator() and NumberValidator() and int(result) >= 10,
+        # "when": lambda result: result["os_guest"] == "linux"
+    },
     {
         "name": "root_enable",
         "message": "Do you want to enable the root user ?",

@@ -90,14 +90,8 @@ source "qemu" "linux" {
   ssh_timeout                  = var.ssh_timeout
   vm_name                      = var.vm_name
   http_content                 = local.http_content
-  # http_content         = {
-  #   "/${var.preseed_file}" = templatefile(abspath(var.preseed_path), { var = var })  #templatefile(var.preseed_file, { var = var })
-  #   "/user-data" = file(abspath("${var.cloud_init_path}/user-data"))
-  #   "/meta-data" = file(abspath("${var.cloud_init_path}/meta-data"))
-  #   # "/network-data" = file("${var.cloud_init_path}/network-data")
-  # }
   # communicator                 = var.communicator
-  # disk_size                    = var.disk_size
+  # disk_size            = "${var.disk_size}G"
   # disk_image                   = var.disk_image
   # host_port_max                = var.host_port_max
   # host_port_min                = var.host_port_min
@@ -136,7 +130,7 @@ source "qemu" "windows" {
   disk_discard         = var.disk_discard
   disk_image           = var.disk_image
   disk_interface       = var.disk_interface
-  disk_size            = var.disk_size
+  disk_size            = "${var.disk_size}G"
   format               = var.format
   headless             = var.headless
   # http_content         = local.http_content
@@ -175,13 +169,14 @@ source "qemu" "windows" {
   vnc_port_min                 = var.vnc_vrdp_port_min
 
   shutdown_command             = "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\""
-  winrm_username               = "packer"
   # winrm_username               = "Administrator"
+  # winrm_password               = "Administrator"
+  winrm_username               = "packer"
   winrm_password               = "packer"
   winrm_use_ssl                = true
   winrm_insecure               = true
-  # winrm_timeout                = "50m"
-  pause_before_connecting      = "30s"
+  winrm_timeout                = "60m"
+  pause_before_connecting      = "1m30s"
   qemuargs                     = var.qemuargs
   # floppy_files                 = var.floppy_files
   # floppy_dirs                  = var.floppy_dirs

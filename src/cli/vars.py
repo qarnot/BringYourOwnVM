@@ -64,6 +64,7 @@ preseed_file = "preseed_file"
 cloud_init_path = "cloud_init_path"
 playbooks = "playbook_files"
 distro = "distro"
+vm_name = "vm_name"
 
 
 confirm = "confirm"
@@ -93,7 +94,7 @@ windows_specific = {
     disk_interface: "virtio",
     http_dir: "./provisions/scripts/install-resources/install-scripts/",
     communicator: "winrm",
-    disk_size: "35G",
+    disk_size: 35,
     boot_wait: "10m",
     memory: 4096,
     autounattend_path: "./provisions/scripts/Autounattend.xml",

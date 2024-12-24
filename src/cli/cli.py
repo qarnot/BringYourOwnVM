@@ -84,7 +84,7 @@ def configure_scripts_dir(user_config: dict, conf: config.Config) -> None:
     else:
         scripts_dir_path = pathlib.Path(user_config[vars.scripts_dir])
         scripts = copytree(user_config[vars.scripts_dir], conf.out_path.joinpath(scripts_dir_path.name), dirs_exist_ok=True)
-        scripts = ["/" + item for item in scripts]
+        scripts = ["/" + str(item) for item in scripts.iterdir()]
 
     if user_config[vars.os_guest] == "linux":
         scripts.append(vars.default_script_linux)
@@ -107,7 +107,7 @@ def configure_playbooks_dir(user_config: dict, conf: config.Config) -> None:
     else:
         playbooks_dir_path = pathlib.Path(user_config[vars.playbooks_dir])
         playbooks = copytree(user_config[vars.playbooks_dir], conf.out_path.joinpath(playbooks_dir_path.name), dirs_exist_ok=True)
-        playbooks = ["/" + item for item in playbooks]
+        playbooks = ["/" + str(item) for item in playbooks.iterdir()]
 
     playbooks.append(vars.upgrade_playbook)
     playbooks.append(vars.qarnot_playbook)
@@ -182,6 +182,7 @@ def setup_user_config(conf: config.Config, user_config: dict) -> bool:
 def vm_creation(conf: config.Config, env_dict: dict) -> int:
     import docker
 
+    # try catch to grab errors when DOCKER_HOST is set
     client = docker.from_env()
 
     print("Pulling the image ...")
@@ -225,8 +226,11 @@ def main(args: any) -> int:
         create_var_file(conf, user_config, str(conf.out_path.absolute()))
 
         env_dict = export_env_vars(user_config, conf.exportable_vars, args.verbose)
+        exceptions = [user_config[vars.vm_name], f"{user_config[vars.vm_name]}.sha256"]
 
         ret = vm_creation(conf, env_dict)
+
+        clean_build_dir(conf, exceptions)
 
     except KeyboardInterrupt:
         print("The program is exiting.")
