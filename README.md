@@ -133,6 +133,7 @@ repository.
 - [ ] Finish Windows support
 - [ ] VNC through Docker
 - [ ] Improve code quality
+- [ ] Handle correctly errors with the Docker SDK
 - [ ] Improve compilation process (make it easier, make the final binary run
 faster)
 - [ ] Lighten the image

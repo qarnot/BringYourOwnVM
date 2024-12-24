@@ -8,6 +8,7 @@
   apt:
     name: curl
   become: true
+
 - name: qarnot dependencies | Installing cifs-utils
   apt:
     name: cifs-utils

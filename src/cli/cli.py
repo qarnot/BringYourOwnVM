@@ -183,24 +183,32 @@ def vm_creation(conf: config.Config, env_dict: dict) -> int:
     import docker
 
     # try catch to grab errors when DOCKER_HOST is set
-    client = docker.from_env()
+    try:
+        client = docker.from_env()
 
-    print("Pulling the image ...")
-    image = client.images.pull(conf.repo, tag=conf.tag)
-    print("The Docker image was successfully pulled.")
+        print("Pulling the image ...")
+        image = client.images.pull(conf.repo, tag=conf.tag)
+        print("The Docker image was successfully pulled.")
+    except:
+        print("An error happened initializing Docker, make sure the DOCKER_HOST variable is set to the correct value.")
+        exit(1)
 
     print("Running the Docker container ...")
-    container = client.containers.run(f"{conf.repo}:{conf.tag}",
-                                      command=conf.command,
-                                      privileged=True,
-                                      remove=True,
-                                      environment=env_dict,
-                                      devices=conf.devices_list,
-                                      volumes=conf.volumes_dict,
-                                      detach=True)
+    try:
+        container = client.containers.run(f"{conf.repo}:{conf.tag}",
+                                          command=conf.command,
+                                          privileged=True,
+                                          remove=True,
+                                          environment=env_dict,
+                                          devices=conf.devices_list,
+                                          volumes=conf.volumes_dict,
+                                          detach=True)
 
-    for line in container.logs(stream=True):
-        print(line.strip().decode("utf-8"))
+        for line in container.logs(stream=True):
+            print(line.strip().decode("utf-8"))
+    except:
+        container.stop()
+        raise KeyboardInterrupt
 
     return container.wait()["StatusCode"]
 
