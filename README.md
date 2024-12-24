@@ -103,11 +103,8 @@ The constants that are available are:
 - `VM_PASSWORD`: the password of the username.
 - `VM_CMD`: the command to execute inside the VM.
 - `VM_SHUTDOWN_CMD`: the command to properly shutdown the VM.
-- `VM_IMAGE_PATH`: the path to the VM image inside the Docker container
-(the content of the mounted bucket is be located in `/job/`)
+- `VM_IMAGE_PATH`: the name of the VM image to launch on the platform
 - `VM_GUEST_OS_FAMILY`: "linux" or "windows".
-- `DOCKER_REGISTRY_LOGIN`: the user login for the Docker registry.
-- `DOCKER_REGISTRY_PASSWORD`: the user password for the Docker registry.
 
 Other constants might be available with the forced constants priviledge.
 
