@@ -7,3 +7,4 @@ src/*.log
 src/provisions/scripts/install-resources/install-scripts/software/
 src/cli/__pycache__
 output
+tests/demo/iso/
