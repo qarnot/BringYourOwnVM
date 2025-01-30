@@ -9,16 +9,13 @@ program_desc = "Create your own virtual machines compatible with Qarnot\
 ###################### Internal Config Variables ##############################
 
 _repo = "docker-qlab.qarnot.net/byovm"
-_tag = "test"
+_tag = "test_release"
 _out_path = "./output"
 _in_path = "/output"
 _command = "sh -c 'while :; do sleep 100; done'"
 _devices_list = ["/dev/kvm", "/dev/kvm"]
 
-_exportable_vars = [
-    "AUTOUNATTEND_PATH", "INIT_SCRIPT_PATH", "INSTALL_SCRIPTS_PATH",
-    "OS_GUEST", "DISK_IMAGE", "PACKER_LOG"
-]
+_exportable_vars = ["OS_GUEST", "DISK_IMAGE", "PACKER_LOG", "CLOUD_IMAGE"]
 
 ## Vars file config Packer
 _var_file_name = "vars.json"
@@ -48,9 +45,6 @@ disk_size = "disk_size"
 disk_interface = "disk_interface"
 boot_wait = "boot_wait"
 memory = "memory"
-autounattend_path = "autounattend_path"
-install_scripts_path = "install_scripts_path"
-init_script_path = "init_script_path"
 scripts = "scripts"
 disk_image = "disk_image"
 headless = "headless"
@@ -65,47 +59,15 @@ cloud_init_path = "cloud_init_path"
 playbooks = "playbook_files"
 distro = "distro"
 vm_name = "vm_name"
-
+cloud_image = "cloud_image"
 
 confirm = "confirm"
 root_enable = "root_enable"
 
 ###############################################################################
 
-qemuargs_list = [
-            [
-                "-drive",
-                f"file=build/qvm.qcow2,if=none,format=qcow2,id=drive-disk0"
-            ],
-            [
-                "-device",
-                "virtio-blk-pci,scsi=off,drive=drive-disk0,id=virtio-disk0,bootindex=0"
-            ],
-            [
-                "-drive",
-            ],
-            ["-drive", "file=./virtio-win-0.1.217.iso,media=cdrom,index=2"],
-            [
-                "-drive",
-            ],
-        ]
-
-windows_specific = {
-    disk_interface: "virtio",
-    http_dir: "./provisions/scripts/install-resources/install-scripts/",
-    communicator: "winrm",
-    disk_size: 35,
-    boot_wait: "10m",
-    memory: 4096,
-    autounattend_path: "./provisions/scripts/Autounattend.xml",
-    init_script_path: "./provisions/scripts/install-resources/init/bootstrap.ps1",
-    install_scripts_path: "./provisions/scripts/install-resources/install-scripts",
-    # scripts: ["./scripts/install-resources/install-scripts/enable-rdp.bat"]
-}
-
-default_script_linux = "./provisions/scripts/linux/script1.sh"
+default_script_linux = "./provisions/scripts/linux/linux_init.sh"
 default_script_cloud_init = "./provisions/scripts/linux/cloud_init.sh"
 default_script_ansible = "./provisions/scripts/linux/ansible.sh"
-default_script_win = "./provisions/scripts/win/script1.bat"
 upgrade_playbook = "./provisions/playbooks/playbook-upgrade.yml"
 qarnot_playbook = "./provisions/playbooks/playbook-qarnot.yml"

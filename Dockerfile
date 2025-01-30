@@ -33,4 +33,6 @@ COPY src/ /work/
 
 RUN packer init /work/templates
 
+RUN apt-get install -y jq
+
 ENTRYPOINT [ "/work/run.bash" ]

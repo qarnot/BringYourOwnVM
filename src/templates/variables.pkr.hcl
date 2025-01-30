@@ -1,16 +1,6 @@
-variable "apt_cache_url" {
-  type = string
-  default = "http://mydomain.eu/debian"
-}
-
 variable "boot_wait" {
   type    = string
-  default = "3s"
-}
-
-variable "bundle_iso" {
-  type    = string
-  default = "false"
+  default = "5s"
 }
 
 variable "communicator" {
@@ -25,22 +15,12 @@ variable "country" {
 
 variable "cpus" {
   type    = string
-  default = "2"
-}
-
-variable "description" {
-  type    = string
-  default = ""
+  default = "4"
 }
 
 variable "disk_size" {
   type    = string
   default = "10G"
-}
-
-variable "domain" {
-  type    = string
-  default = ""
 }
 
 variable "guest_os" {
@@ -55,27 +35,7 @@ variable "distro" {
 
 variable "headless" {
   type    = string
-  default = "false"
-}
-
-variable "host_port_max" {
-  type    = string
-  default = "4444"
-}
-
-variable "host_port_min" {
-  type    = string
-  default = "2222"
-}
-
-variable "http_port_max" {
-  type    = string
-  default = "9000"
-}
-
-variable "http_port_min" {
-  type    = string
-  default = "8000"
+  default = "true"
 }
 
 variable "iso_checksum" {
@@ -115,12 +75,7 @@ variable "locale" {
 
 variable "memory" {
   type    = string
-  default = "4096"
-}
-
-variable "mirror" {
-  type    = string
-  default = "ftp.fr.debian.org"
+  default = "5120"
 }
 
 variable "packer_cache_dir" {
@@ -143,26 +98,6 @@ variable "shutdown_timeout" {
   default = "5m"
 }
 
-variable "skip_export" {
-  type    = string
-  default = "false"
-}
-
-variable "ssh_agent_auth" {
-  type    = string
-  default = "false"
-}
-
-variable "ssh_clear_authorized_keys" {
-  type    = string
-  default = "false"
-}
-
-variable "ssh_disable_agent_forwarding" {
-  type    = string
-  default = "false"
-}
-
 variable "ssh_file_transfer_method" {
   type    = string
   default = "scp"
@@ -170,43 +105,23 @@ variable "ssh_file_transfer_method" {
 
 variable "ssh_fullname" {
   type    = string
-  default = "Bruce Wayne"
+  default = "username"
 }
 
-variable "ssh_handshake_attempts" {
+variable "ssh_username" {
   type    = string
-  default = "10"
-}
-
-variable "ssh_keep_alive_interval" {
-  type    = string
-  default = "5s"
+  default = "ubuntu"
 }
 
 variable "ssh_password" {
   type    = string
-  default = "batman"
+  default = "ubuntu"
   sensitive = true
-}
-
-variable "ssh_port" {
-  type    = string
-  default = "22"
-}
-
-variable "ssh_pty" {
-  type    = string
-  default = "false"
 }
 
 variable "ssh_timeout" {
   type    = string
   default = "60m"
-}
-
-variable "ssh_username" {
-  type    = string
-  default = "batman"
 }
 
 variable "start_retry_timeout" {
@@ -224,29 +139,9 @@ variable "timezone" {
   default = "UTC"
 }
 
-variable "version" {
-  type    = string
-  default = "0.0.0"
-}
-
 variable "vm_name" {
   type    = string
   default = "qvm.qcow2"
-}
-
-variable "vnc_vrdp_bind_address" {
-  type    = string
-  default = "127.0.0.1"
-}
-
-variable "vnc_vrdp_port_max" {
-  type    = string
-  default = "6000"
-}
-
-variable "vnc_vrdp_port_min" {
-  type    = string
-  default = "5900"
 }
 
 variable "binary" {
@@ -257,36 +152,6 @@ variable "binary" {
 variable "scripts" {
   type = list(string)
   default = null
-}
-
-variable "skip_compaction" {
-  type = bool
-  default = true
-}
-
-variable "skip_nat_mapping" {
-  type = bool
-  default = false
-}
-
-variable "use_default_display" {
-  type = bool
-  default = false
-}
-
-variable "disk_cache" {
-  type = string
-  default = "writeback"
-}
-
-variable "disk_compression" {
-  type = bool
-  default = false
-}
-
-variable "disk_discard" {
-  type = string
-  default = "ignore"
 }
 
 variable "disk_image" {
@@ -302,16 +167,6 @@ variable "disk_interface" {
 variable "format" {
   type = string
   default = "qcow2"
-}
-
-variable "iso_skip_cache" {
-  type = bool
-  default = false
-}
-
-variable "iso_target_extension" {
-  type = string
-  default = "iso"
 }
 
 variable "machine_type" {
@@ -371,12 +226,12 @@ variable "root_enable" {
 
 variable "files_dir" {
   type = string
-  default = "./demo/files"
+  default = null
 }
 
 variable "cloud_init_path" {
   type = string
-  default = "./demo/cloud_init"
+  default = "./provisions/cloud-init"
 }
 
 variable "playbook_files" {

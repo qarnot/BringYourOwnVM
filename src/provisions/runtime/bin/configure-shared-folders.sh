@@ -7,11 +7,6 @@ source "$my_dir/utils.sh"
 #
 # [
 #   {
-#     "source": "nfs://nfs.task.qarnot.loc:/job",
-#     "destination": "/job",
-#     "mode": "rw"
-#   },
-#   {
 #     "source": "nfs://nfs.task.qarnot.loc:/user-data",
 #     "destination": "/user-data",
 #     "mode": "ro"
@@ -31,7 +26,7 @@ setup_shared_folder() {
     local mode=$3
 
 
-    if [[ $src =~ ^(nfs|smb)://.* ]]; then
+    if [[ $src =~ ^(smb)://.* ]]; then
         log "Mounting $src -> $destination ($mode)"
 
         local mode_option="-w"
@@ -41,14 +36,7 @@ setup_shared_folder() {
 
         mkdir -p $destination
 
-        local remote_uri
-        if [[ $src =~ ^(nfs)://.* ]]; then
-            remote_uri="${src#nfs://}"
-
-            log "mount -o nolock,nfsvers=3 $mode_option $remote_uri $destination"
-            mount -o no_lock,vers=4.0 $mode_option nfs.task.qarnot.loc:/ $destination #$remote_uri
-        elif [[ $src =~ ^(smb)://.* ]]; then
-            remote_uri="${src#smb:}"
+        local remote_uri="${src#smb:}"
 
             log "mount -o guest,vers=3.0,file_mode=0666,dir_mode=0777 $mode_option $remote_uri $destination"
             mount -o guest,vers=3.0,file_mode=0666,dir_mode=0777 $mode_option $remote_uri $destination

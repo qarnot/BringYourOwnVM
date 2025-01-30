@@ -5,107 +5,59 @@ source "$(dirname "$0")"/bash-utils/log.sh
 set -e
 set -o nounset
 
-VM_BRIDGE_IFACE=virbr0
-VM_NET_CIDR=24
-VM_NET_GATEWAY=192.168.60.1
-VM_NET_MASK=255.255.255.0
-VM_IP=192.168.60.2
-MAIN_IFACE=eth0
-DNSMASQ_LOG_FILE=/var/log/dnsmasq.log
-QEMU_MAC_ADDRESS="00:01:02:03:04:05"
+replace_ssh_key_cloud_config() {
+  local cloud_config_file="$1"
+  local ssh_public_key_file="$2"
 
-setup_dnsmasq() {
-    local range="$VM_IP,$VM_IP"
+  if [[ -z "$cloud_config_file" || -z "$ssh_public_key_file" ]]; then
+    echo "Error: Both cloud config file and SSH public key must be provided."
+    return 1
+  fi
 
-    cat > /etc/dnsmasq.conf << EOF
-user=root
-domain-needed  # don't let incomplete requests leave the LAN
-bogus-priv  # prevent non-routable to be forwarded out
+  if [[ ! -f "$cloud_config_file" ]]; then
+    echo "Error: The file '$cloud_config_file' does not exist."
+    return 1
+  fi
 
-dhcp-range=$range
-dhcp-option=option:router,$VM_NET_GATEWAY
-dhcp-option=option:netmask,$VM_NET_MASK
-dhcp-option=option:dns-server,$VM_NET_GATEWAY,1.1.1.1
-#dhcp-option=option:dns-server,1.1.1.1
-log-facility=$DNSMASQ_LOG_FILE
-interface=$VM_BRIDGE_IFACE
-EOF
+  local ssh_public_key="$(cat $ssh_public_key_file)"
 
-    log_info "Starting dnsmasq with config: $(cat /etc/dnsmasq.conf)"
-    dnsmasq
-}
+  local temp_file
+  temp_file=$(mktemp)
+  local in_ssh_block=false
 
-setup_nat() {
-    log "Setting up bridge $VM_BRIDGE_IFACE with IP $VM_NET_GATEWAY/$VM_NET_CIDR. Currently, ifaces are: $(ip a)"
-    # Create a bridge that will act as the host's presence in the network dedicated to the VM
-    ip link add name "$VM_BRIDGE_IFACE" type bridge
-    ip addr add "$VM_NET_GATEWAY/$VM_NET_CIDR" dev "$VM_BRIDGE_IFACE"
-    ip link set dev "$VM_BRIDGE_IFACE" up
-
-    log "Did setup bridge $VM_BRIDGE_IFACE with IP $VM_NET_GATEWAY/$VM_NET_CIDR, now setting NAT in iptables: $(ip a)"
-
-    # Setup iptables rules allowing outbound traffic from the VM network to
-    # get to the Internet
-    iptables -t nat -A POSTROUTING -o "$MAIN_IFACE" -j MASQUERADE
-    iptables -I FORWARD 1 -i "$VM_BRIDGE_IFACE" -j ACCEPT
-    iptables -I FORWARD 1 -o "$VM_BRIDGE_IFACE" -m state --state RELATED,ESTABLISHED -j ACCEPT
-    ret=$?
-
-    log "Did setup NAT and FORWARD rules:"
-    log "$(iptables -L -n -v)"
-    log "$(iptables -t nat -L -n -v)"
-
-    if [ "$ret" -ne 0 ]; then
-        log "Failed to set the bridge '$VM_BRIDGE_IFACE' up, exit code: $ret"
-        exit 2;
+  while IFS= read -r line; do
+    if [[ "$line" =~ ssh_authorized_keys: ]]; then
+      echo "ssh_authorized_keys:" >> "$temp_file"
+      echo "  - $ssh_public_key" >> "$temp_file"
+      in_ssh_block=true
+    elif $in_ssh_block && [[ "$line" =~ ^[[:space:]]*- ]]; then
+      # Skip existing SSH key lines
+      continue
+    else
+      echo "$line" >> "$temp_file"
+      in_ssh_block=false
     fi
+  done < "$cloud_config_file"
 
-    mkdir -p /etc/qemu
-    log "allow $VM_BRIDGE_IFACE" > /etc/qemu/bridge.conf
-
-    setup_dnsmasq
-    ret=$?
-    if [ "$ret" -ne 0 ];then
-      log "Failed to set the dnsmasq up, exit code: $ret"
-      exit $ret
-    fi
-
-    log "Write config for qemu-bridge-helper"
-    mkdir -p /usr/local/etc/qemu
-    log "allow $VM_BRIDGE_IFACE" >>/usr/local/etc/qemu/bridge.conf
-    chmod 640 /usr/local/etc/qemu/bridge.conf
+  mv "$temp_file" "$cloud_config_file"
 }
 
 
-TMP_PATH=/tmp/install_scripts.iso
-BUILD="base"
+SOURCE="$OS_GUEST"
 
 rm -rf ./build/
 
-if [ "$OS_GUEST" = "windows" ]; then
+if [ "$CLOUD_IMAGE" = "true" ]; then
+  SOURCE="cloud"
 
-  curl -fSL https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso -o virtio-win-0.1.217.iso
-
-  setup_nat
-
-  if [ ! -z "$AUTOUNATTEND_PATH" ] && [ ! -z "$INIT_SCRIPT_PATH" ] && [ ! -z "$INSTALL_SCRIPTS_PATH" ]; then
-    mkdir -p "$TMP_PATH"
-    cp -rav "$INSTALL_SCRIPTS_PATH"/* "$TMP_PATH"
-    cp -v "$AUTOUNATTEND_PATH" "$TMP_PATH"/Autounattend.xml
-    cp -v "$INIT_SCRIPT_PATH" "$TMP_PATH"/bootstrap.ps1
-
-    genisoimage -J -o /output/install-scripts.iso "$TMP_PATH"
-  else
-    log "Some variables are not defined"
-    exit 1
-  fi
+  mkdir -p /work/.ssh
+  ssh-keygen -t ed25519 -N '' -f "/work/.ssh/id"
+  replace_ssh_key_cloud_config "./provisions/cloud-init/user-data" "/work/.ssh/id.pub"
 fi
 
-if [ "$DISK_IMAGE" = "true" ]; then
-  BUILD="overlay"
-fi
-
-packer build -var-file=/output/vars.json -only "$OS_GUEST-$BUILD.qemu.$OS_GUEST" ./templates;
+python3 provisioners.py "./templates/build.pkr.hcl" "/output/vars.json" "$OS_GUEST"
+ 
+packer build -var-file=/output/vars.json -only "$OS_GUEST.qemu.$SOURCE" ./templates;
 
 chmod 666 ./build/*
 cp ./build/* /output

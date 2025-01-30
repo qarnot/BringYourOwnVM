@@ -1,11 +1,43 @@
+<a name="top"></a>
+
+
+
+
+[![Qarnot](./assets/qarnot_banner.png "Qarnot")](https://qarnot.com)
+
 # BringYourOwnVM
 
-## Goals
+**BYOVM** is a PoC (Proof of Concept) tool built around [Packer](https://www.packer.io)
+ which aims at demonstrating how can Packer be used to automate the creation of
+ virtual machine images.
 
-The goal of this tool is to build virtual machines (VM) which are compatibles
-with Qarnot's HPC services.
+## Table of Contents
 
-## How to use it ?
+- [About](#about)
+- [Usage](#usage)
+- [How it Works](#how-it-works)
+- [Run a task on Qarnot](#run-a-task-on-qarnot)
+- [Current limitations](#current-limitations)
+- [Licences](#licences)
+
+## About <a name="about"></a>
+
+The goal of this tool is to build virtual machine (VM) images which are
+compatibles with [Qarnot](https://qarnot.com)'s HPC services.
+
+This tool was designed by the ***Solution Team*** of [Qarnot computing](https://qarnot.com).
+
+![BYOVM](./assets/byovm.gif "BYOVM")
+
+## Usage
+
+### Clone the sources
+
+You need to have `git` pre-installed on your system.
+
+```bash
+git clone https://github.com/qarnot/bringyourownvm.git
+```
 
 ### Install dependencies
 
@@ -22,80 +54,134 @@ To install the required dependencies for the tool to work:
 
 To quit the virtual environment, simply type `deactivate` in the terminal.
 
-### Build & Run
+### Run
 
 If the dependencies are installed in a virtual environment, then it needs to be
-activated each time the tool is launched (pretty annoying ...): 
+activated each time the tool is launched: 
 
 ```bash
 source $PATH_TO_YOUR_VENV/bin/activate
 ```
 
+#### Using the CLI
+
+By default, the tool will start by showing several questions  which are here to
+help the user configure its virtual machine image.
+
 ```bash
 python3 main.py
+```
+
+#### Using a pre-made configuration file
+
+The tool can also be run directly using a configuration file. It will bypass the
+questions and directly setup the directory and starts the Docker container.
+
+```bash
+python3 main.py -f $PATH_TO_THE_CONFIGURATION_FILE
 ```
 
 In the end, the user would probably want to close the opened venv. To do so,
 simply type: `deactivate` in the terminal.
 
-## How it works
+## How it Works <a name="how-it-works"></a>
 
-Once the tool is launched, follow the instructions. The tool creates a 
-configuration file based on the user answers and fetchs the required data. A
-Docker image is pulled and a container is launched using the newly-created
-configuration file.
+This tool uses [Packer](https://www.packer.io) and [Docker](https://www.docker.com/).
+It wraps Packer and try to take advantage of its system of templates to be a
+generic tool for creating virtual machine images. The tool was designed so
+the the front-end part can be replaced or rewritten in another language. This
+way, the tool becomes more portable and more adaptable.
 
-The Docker image uses [Packer](https://www.packer.io/), a tool used to automate
-virtual machine image builds to build the virtual machine. A directory from the 
-host is mounted inside the Docker container in order to share data such as
-configuration file or any other inputs.
+**This tool will only work on operating systems using ***[systemd](https://systemd.io/)***!**
 
-### Provisioning a VM (GNU/Linux-only)
+It will install a systemd service inside the VM image which will launch at every start-up.
+It will try to establish a connection with other components available only on
+the Qarnot infrastructure.
 
-Provisioning a virtual machine consists in providing some configuration files
-in order to automatically install the OS and setup the VM.
+### CLI
 
-To provision a VM, the user can make use of several technologies:
+The cli acts like a "front-end". It setups a configuration file in the JSON
+format and groups all the user inputs into a specific directory. Then, it pulls
+a Docker image and starts a container from it with the previously mentionned
+directory mounted as a Docker volume.
+
+Inside this container, Packer is launched and proceeds to the creation and
+installation of the VM image.
+
+### Provisioning a VM image
+
+Provisioning a virtual machine image consists in providing some configuration
+files in order to automatically install the OS and setup the VM.
+
+To provision a VM image, the user can make use of several technologies:
+
 - [preseed](https://wiki.debian.org/DebianInstaller/Preseed) (Debian only)
-- [cloud-init](https://cloudinit.readthedocs.io/en/latest/index.html) (Ubuntu only for now)
-- shell scripts
+
+Preseeds are the official way to automate the Debian installation. It provides
+answers to the questions asked by the installer.
+
+- [autoinstall](https://canonical-subiquity.readthedocs-hosted.com/en/latest/intro-to-autoinstall.html) (Ubuntu only)
+
+Preseeds were the official way to automate Ubuntu installation until Ubuntu 20.04.
+Now, ***autoinstall*** is used, which is a sort of overload of [Cloud-Init](https://cloud-init.io/).
+
 - [Ansible](https://www.ansible.com/) playbooks
+
+Ansible is widely used to make idempotent configurations. It can be used to create users,
+install packages ...
+
+To make use of Ansible, the [Ansible plugin](https://github.com/hashicorp/packer-plugin-ansible)
+for Packer is used.
+
+**Warning: some edge cases may not work as the user would expect with the Ansible
+plugin for Packer. For further information, please refer to the [official documentation
+of the plugin](https://developer.hashicorp.com/packer/integrations/hashicorp/ansible/latest/components/provisioner/ansible).**
+
+- shell scripts
 
 This wide range of technologies is designed to ensure that the tool fits
 seamlessly in the user's workflow.
 
-### Test
+### Contracts
 
-**During the development phase, the Docker image required for the tool to work
- is hosted on an internal registry (`docker-qlab.qarnot.net`), therefore the
- user must be logged in to the internal registry. See the `docker-login` man
- page for further information.**
+The following table summarizes all the possible variables with a description for each,
+as well as whether it is mandatory or not.
 
-For the sake of testing, some files are available in `src/demo/`:
+| **Variable Name** | **Description** | **Mandatory** |
+| ----------------- | --------------- | ------------- |
+| os_guest          | operating system of the VM image |  YES          |
+| disk_image | 'true' if the VM image already has an OS installed and at least one user setup, 'false' otherwise | YES |
+| cloud_image | 'true' is the provided image is a cloud-image, 'false' otherwise | YES |
+| vm_name | the name of the output VM image | NO |
+|disk_size | the disk size to be allocated to the VM (minimum 10G) | NO |
+| memory | the number of RAM which will be used to launch the VM for the installation (minimum 4G) | NO |
+| cpus | the number of CPUs which will be used to launch the VM for the installation (minimum 4) | NO |
+| ssh_username | the username of the user which will be used by Packer to connect to the VM through SSH. The user MUST already exist on the system. | YES |
+| ssh_password | the password corresponding the username used by Packer to connect to the VM | YES |
+| iso_path | the path on the host system to the ISO file (or the image) | NO |
+| headless | MUST always be set to `true`, otherwise Docker will crash.  | NO |
+| scripts | the list of pathes of scripts to be executed inside the Docker container | NO |
+| iso_checksum | the checksum of the ISO file (or image)  | YES |
+| iso_file | the name of the ISO file (or image)  | YES |
+| iso_path_external | the parent path (the path without the name of the file) to the ISO file (or image) INSIDE the Docker container | YES |
+| cloud_init_path | path to a directory containing cloud-init files `user-data` and `meta-data` (only for Ubuntu ISOs) | NO |
+| playbook_files |  path to a directory containing all the playbook files the user wants to apply | YES |
+| preseed_path | path to the preseed file (only work for Debian) | NO |
+| root_enable | whether or not the root user is enabled (is not available for every distribution) | NO |
+| root_password | password for the root user IF ROOT_ENABLE IS SET TO TRUE | NO |
+| communicator | `ssh` for every Linux-related template | NO |
 
-- a `src/demo/debian.preseed` file, it is a generic template which you can
-directly provide to the tool when creating a Debian VM
-- `src/demo/cloud_init/`: some cloud-init files which will create a user
-`ubuntu:ubuntu` (`username:password` format)
-- `src/demo/files/`: a directory containing a C file with a fibonacci function,
-this folder will be copied inside the VM providing some files at buildtime.
+## Run a task on Qarnot <a name="run-a-task-on-qarnot"></a>
 
-Some shell scripts are available in `src/provisions/scripts/linux`.
+Further informations and detailed tutorials on how to use the Qarnot's compute
+platform, please refer to the [official documentation](https://qarnot.com/documentation/en/home).
 
-For now, the tested and usable ISOs are:
-- Ubuntu 24.01 Desktop
-- Ubuntu 24.01 Live-Server
-- Debian 12.8.0 netinstall
-
-## Run a task
-
-To run a task using the freshly created VM, the user can use the profile
-`bring-your-own-vm-network` (currently only available for the Solution team
- members).
+To run calculations on Qarnot using the freshly created VM image, the user can use the profile
+`bring-your-own-vm-network`.
 
 This profile defines the "contract" between the user and Qarnot services.
 
-First, the user needs to upload his VM inside a bucket on the Qarnot's platform.
+First, the user needs to upload his VM image inside a bucket on the Qarnot's platform.
 
 The constants that are available are:
 
@@ -106,34 +192,27 @@ The constants that are available are:
 - `VM_IMAGE_PATH`: the name of the VM image to launch on the platform
 - `VM_GUEST_OS_FAMILY`: "linux" or "windows".
 
-Other constants might be available with the forced constants priviledge.
+A template to run a task using the Python SDK is available at `./profile_byovm.py`.
 
-## Current limitations
+## Current limitations <a name="current-limitations"></a>
 
-- At the time of writing, the tool does not work perfectly for Windows. It is
-currently not possible to bring an already-made Windows VM.
+As this project is a PoC and not a final product, it still lacks of functionnality
+and stability.
 
-## Known issues
+If you are encountering any issue regarding the use of this tool, please feel
+free to open an issue on GitHub.
 
-- Windows support is not properly working for now: the provisioning phase is
-not yet stable.
-- Only few and ISO images are supported (netiso for Debian, Desktop and 
-Live-Server for Ubuntu).
-- VNC through Docker is currently not available.
+Some limitations/known issues:
 
-For non-listed errors, please feel free to report them
-at: `paul.fournillon@qarnot-computing.com` or to create an issue on the GitLab
-repository.
+- files cannot be copied by directly using Packer
+- VNC through Docker to visualize the installation is currently not available.
+- For now, the tool does not work for Windows
+- This PoC has been tested mainly with Debian netiso Ubuntu 24.01 ISO and Ubuntu noble cloud image.
+- As VNC is not available, it may be hard to debug. Most of the time, it comes from what is
+provided to Packer (scripts, playbooks ...).
 
-## TODO
+## Licences <a name="licences"></a>
 
-- [ ] Option to fetch some "default" ISOs
-- [ ] Fix Ansible playbooks handling
-- [ ] Support for Cloud images
-- [ ] Finish Windows support
-- [ ] VNC through Docker
-- [ ] Improve code quality
-- [ ] Handle correctly errors with the Docker SDK
-- [ ] Improve compilation process (make it easier, make the final binary run
-faster)
-- [ ] Lighten the image
+This project is licenced under the terms of the Apache-2.0 license.
+
+[Back to top](#top)

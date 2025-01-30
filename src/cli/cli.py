@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+from argparse import ArgumentParser
 from shutil import copytree
 from sys import exit
 
@@ -19,14 +20,30 @@ def create_var_file(conf: config.Config, user_config: dict,
     return None
 
 
-def export_env_vars(user_config: dict, exportable_vars: list[str], verbose: bool) -> dict:
-    env_vars = {}
+def load_config_file(file: str) -> dict:
+    user_config: dict = {}
+
+    try:
+        with open(file, "r", encoding="utf-8") as f:
+            user_config: dict = json.load(f)
+    except:
+        print("Error: An error occured while reading the configuration.")
+        exit(1)
+
+    assert(f.closed)
+    return user_config
+
+
+def export_env_vars(user_config: dict, exportable_vars: list[str],
+                    verbose: bool) -> dict:
+    env_vars: dict = {}
 
     for key in user_config:
         if key.upper() in exportable_vars:
             env_vars.update({key.upper(): user_config[key]})
 
     env_vars.update({"PACKER_LOG": 1 if verbose else 0})
+    env_vars.update({"OS_GUEST": "linux"})
 
     return env_vars
 
@@ -34,7 +51,18 @@ def export_env_vars(user_config: dict, exportable_vars: list[str], verbose: bool
 def get_user_config(questions: list[dict]) -> dict:
     import InquirerPy
 
-    user_config = InquirerPy.prompt(questions=questions)
+    style = {
+        "question": "bold #FFA500",
+        "answer": "bold #00FF00",
+        "pointer": "bold #FF0000",
+        "highlighted": "bold #0000FF bg:#FFFF00",
+        "separator": "",
+        "instruction": "italic #888888",
+        "input": "#00CED1",
+        "questionmark": "fg:#FFD700",
+    }
+
+    user_config: dict = InquirerPy.prompt(questions=questions, style=style)
 
     if not user_config[vars.confirm]:
         exit(1)
@@ -42,20 +70,11 @@ def get_user_config(questions: list[dict]) -> dict:
     return user_config
 
 
-def get_qemuargs(conf: config.Config, user_config: dict) -> list:
-    res = vars.qemuargs_list
-
-    res[2].append(f"file={user_config[vars.iso_path_external]}/{user_config[vars.iso_file]},media=cdrom,index=1")
-    res[4].append(f"file={conf.in_path}/install-scripts.iso,media=cdrom,index=3")
-
-    return res
-
-
 def configure_iso_path(user_config: dict) -> bool:
-    copy = True
+    copy: bool = True
 
     if user_config[vars.iso_path] == "":
-        copy = False
+        copy: bool = False
         if user_config[vars.disk_image] == "true":
             print("Error: An error occured.")
             exit(1)
@@ -65,9 +84,11 @@ def configure_iso_path(user_config: dict) -> bool:
     return copy
 
 
-def enumerate_files(path: str, os: str) -> list[str]:
-    dir_path = pathlib.Path(path)
-    res = [vars.default_script_linux if os == "linux" else vars.default_script_win]
+def enumerate_files(path: str, os: str) -> list:
+    dir_path: pathlib.Path = pathlib.Path(path)
+    res: list = [
+        vars.default_script_linux if os == "linux" else vars.default_script_win
+    ]
 
     for item in dir_path.iterdir():
         if item.is_file():
@@ -77,37 +98,28 @@ def enumerate_files(path: str, os: str) -> list[str]:
 
 
 def configure_scripts_dir(user_config: dict, conf: config.Config) -> None:
-    scripts = []
+    scripts: list = []
 
-    if user_config[vars.scripts_dir] == "" or user_config[vars.scripts_dir] == None:
+    if user_config[vars.scripts_dir] == "" or user_config[
+            vars.scripts_dir] == None:
         user_config.pop(vars.scripts_dir)
     else:
-        scripts_dir_path = pathlib.Path(user_config[vars.scripts_dir])
-        scripts = copytree(user_config[vars.scripts_dir], conf.out_path.joinpath(scripts_dir_path.name), dirs_exist_ok=True)
-        scripts = ["/" + str(item) for item in scripts.iterdir()]
+        scripts: list = copy_dir(conf, user_config, vars.scripts_dir)
 
-    if user_config[vars.os_guest] == "linux":
-        scripts.append(vars.default_script_linux)
-        scripts.append(vars.default_script_ansible)
-    else:
-        scripts.append(vars.default_script_win)
-
-    if user_config[vars.distro] != "debian" and user_config[vars.os_guest] == "linux":
-        scripts.append(vars.default_script_cloud_init)
-    user_config.update({vars.scripts: scripts})
+    if len(scripts) != 0:
+        user_config.update({vars.scripts: scripts})
 
     return None
 
 
 def configure_playbooks_dir(user_config: dict, conf: config.Config) -> None:
-    playbooks = []
+    playbooks: list = []
 
-    if user_config[vars.playbooks_dir] == "" or user_config[vars.playbooks_dir] == None:
+    if user_config[vars.playbooks_dir] == "" or user_config[
+            vars.playbooks_dir] == None:
         user_config.pop(vars.playbooks_dir)
     else:
-        playbooks_dir_path = pathlib.Path(user_config[vars.playbooks_dir])
-        playbooks = copytree(user_config[vars.playbooks_dir], conf.out_path.joinpath(playbooks_dir_path.name), dirs_exist_ok=True)
-        playbooks = ["/" + str(item) for item in playbooks.iterdir()]
+        playbooks: list = copy_dir(conf, user_config, vars.playbooks_dir)
 
     playbooks.append(vars.upgrade_playbook)
     playbooks.append(vars.qarnot_playbook)
@@ -116,65 +128,59 @@ def configure_playbooks_dir(user_config: dict, conf: config.Config) -> None:
     return None
 
 
-def prune_user_config(user_config: dict, conf: config.Config) -> bool:
-
-    copy = configure_iso_path(user_config)
-
-    configure_scripts_dir(user_config, conf)
-    configure_playbooks_dir(user_config, conf)
-
-    to_pop = [vars.confirm]
+def prune_user_config(user_config: dict) -> None:
+    to_pop: list = [vars.confirm]
 
     for key in user_config:
-        if user_config[key] == None or user_config[key] == "" or key == vars.root_enable:
+        if user_config[key] == None or user_config[
+                key] == "" or key == vars.root_enable:
             to_pop.append(key)
 
     for key in to_pop:
         user_config.pop(key)
 
-    return copy
+    return None
 
 
 def setup_user_config(conf: config.Config, user_config: dict) -> bool:
-    path = None
+    path: pathlib.Path = None
+    copy: bool = True
 
     user_config.update({vars.headless: "true"})
 
-    copy = prune_user_config(user_config, conf)
+    configure_scripts_dir(user_config, conf)
+    configure_playbooks_dir(user_config, conf)
 
-    if vars.files_dir in user_config:
-        files_dir_path = pathlib.Path(user_config[vars.files_dir])
-        files = copytree(user_config[vars.files_dir], conf.out_path.joinpath(files_dir_path.name), dirs_exist_ok=True)
-        user_config.update({vars.files_dir: "/" + str(conf.out_path.joinpath(files_dir_path.name))})
+    prune_user_config(user_config)
+
+    copy_dir(conf, user_config, vars.files_dir)
+    copy_dir(conf, user_config, vars.cloud_init_path)
 
     if vars.preseed_path in user_config:
-        preseed_path = pathlib.Path(user_config[vars.preseed_path])
+        preseed_path: pathlib.Path = pathlib.Path(
+            user_config[vars.preseed_path])
         copy_file(preseed_path, conf.out_path.joinpath(preseed_path.name))
-        user_config.update({vars.preseed_path: "/" + str(conf.out_path.joinpath(preseed_path.name))})
+        user_config.update({
+            vars.preseed_path:
+            "/" + str(conf.out_path.joinpath(preseed_path.name))
+        })
         user_config.update({vars.preseed_file: str(preseed_path.name)})
 
-    if vars.cloud_init_path in user_config:
-        cloud_init_path = pathlib.Path(user_config[vars.cloud_init_path])
-        cloud_inits = copytree(cloud_init_path, conf.out_path.joinpath(cloud_init_path.name), dirs_exist_ok=True)
-        user_config.update({vars.cloud_init_path: "/" + str(conf.out_path.joinpath(cloud_init_path.name))})
-
     if vars.iso_path in user_config:
-        path = pathlib.Path(user_config[vars.iso_path])
+        path: pathlib.Path = pathlib.Path(user_config[vars.iso_path])
 
         if vars.iso_checksum not in user_config:
-            user_config[vars.iso_checksum] = get_checksum(
-            pathlib.Path(user_config[vars.iso_path]))
+            user_config[vars.iso_checksum]: str = get_checksum(path)
+
+        if conf.out_path.joinpath(path.name).exists():
+            if user_config[vars.iso_checksum] == get_checksum(
+                    conf.out_path.joinpath(path.name)):
+                copy = False
 
         user_config.update({
             vars.iso_path_external: str(conf.in_path.absolute()),
             vars.iso_file: path.name
         })
-
-    if user_config[vars.os_guest].lower() == "windows":
-        qemuargs_list = get_qemuargs(conf, user_config)
-
-        user_config.update({vars.qemuargs: qemuargs_list})
-        user_config.update(vars.windows_specific)
 
     return copy
 
@@ -184,25 +190,29 @@ def vm_creation(conf: config.Config, env_dict: dict) -> int:
 
     # try catch to grab errors when DOCKER_HOST is set
     try:
-        client = docker.from_env()
+        client: docker.client.DockerClient = docker.from_env()
 
         print("Pulling the image ...")
-        image = client.images.pull(conf.repo, tag=conf.tag)
+        # image: docker.models.images.Image = client.images.pull(conf.repo,
+        #                                                        tag=conf.tag)
         print("The Docker image was successfully pulled.")
     except:
-        print("An error happened initializing Docker, make sure the DOCKER_HOST variable is set to the correct value.")
+        print(
+            "An error happened initializing Docker, make sure the DOCKER_HOST variable is set to the correct value."
+        )
         exit(1)
 
     print("Running the Docker container ...")
     try:
-        container = client.containers.run(f"{conf.repo}:{conf.tag}",
-                                          command=conf.command,
-                                          privileged=True,
-                                          remove=True,
-                                          environment=env_dict,
-                                          devices=conf.devices_list,
-                                          volumes=conf.volumes_dict,
-                                          detach=True)
+        container: docker.models.cotainers.Container = client.containers.run(
+            f"{conf.repo}:{conf.tag}",
+            command=conf.command,
+            privileged=True,
+            remove=True,
+            environment=env_dict,
+            devices=conf.devices_list,
+            volumes=conf.volumes_dict,
+            detach=True)
 
         for line in container.logs(stream=True):
             print(line.strip().decode("utf-8"))
@@ -213,30 +223,38 @@ def vm_creation(conf: config.Config, env_dict: dict) -> int:
     return container.wait()["StatusCode"]
 
 
-def main(args: any) -> int:
-    ret = 0
+def main(args: ArgumentParser) -> int:
+    ret: int = 0
 
     print(ascii_art("BYOVM"))
 
     try:
-        user_config = get_user_config(questions)
+        user_config: dict = get_user_config(questions)
 
-        conf = config.Config()
+        conf: config.Config = config.Config()
 
         create_build_dir(conf.out_path)
 
-        copy = setup_user_config(conf, user_config)
+        copy: bool = setup_user_config(conf, user_config)
+        iso_path: pathlib.Path = pathlib.Path(user_config[vars.iso_path])
 
         if copy:
-            copy_file(pathlib.Path(user_config[vars.iso_path]),
-                      conf.out_path.absolute())
+            copy_file(iso_path, conf.out_path.absolute())
+
+        else:
+            print(
+                f"The path: {conf.out_path.joinpath(iso_path.name)} already exists."
+            )
 
         create_var_file(conf, user_config, str(conf.out_path.absolute()))
 
-        env_dict = export_env_vars(user_config, conf.exportable_vars, args.verbose)
-        exceptions = [user_config[vars.vm_name], f"{user_config[vars.vm_name]}.sha256"]
+        env_dict: dict = export_env_vars(user_config, conf.exportable_vars,
+                                         args.verbose)
+        exceptions: list = [
+            user_config[vars.vm_name], f"{user_config[vars.vm_name]}.sha256"
+        ]
 
-        ret = vm_creation(conf, env_dict)
+        ret: int = vm_creation(conf, env_dict)
 
         clean_build_dir(conf, exceptions)
 

@@ -1,6 +1,7 @@
 import json
 import pathlib
 from sys import exit
+from shutil import copytree
 
 from src.cli import config
 from src.cli import vars
@@ -33,7 +34,7 @@ def get_checksum(path: pathlib.Path) -> str:
 
     with open(path, "rb") as f:
         while True:
-            data = f.read(BUFF_SIZE)
+            data: bytes = f.read(BUFF_SIZE)
             if not data:
                 break
             checksum.update(data)
@@ -59,7 +60,7 @@ def copy_file(path_src: pathlib.Path, path_dst: pathlib.Path) -> None:
             print(f"Source path: {path_src} does not exist or is not a file.")
 
         if not path_dst.is_file():
-            tmp = pathlib.Path(path_dst).joinpath(path_src.name)
+            tmp: pathlib.Path = pathlib.Path(path_dst).joinpath(path_src.name)
             if not tmp.is_file() or (tmp.is_file()
                                      and not filecmp.cmp(tmp, path_src)):
                 print(f"Please wait, the file is being copied to {path_dst}.")
@@ -74,10 +75,35 @@ def copy_file(path_src: pathlib.Path, path_dst: pathlib.Path) -> None:
     return None
 
 
+def copy_dir(conf: config.Config, user_config: dict, var_path: str) -> list:
+    files: list = []
+
+    try:
+        if var_path in user_config:
+            path: pathlib.Path = pathlib.Path(user_config[var_path])
+            files_path: pathlib.Path = copytree(path,
+                                                conf.out_path.joinpath(
+                                                    path.name),
+                                                dirs_exist_ok=True)
+            files: list = [
+                "/" + str(item) for item in files_path.iterdir()
+                if item.is_file()
+            ]
+
+            user_config.update(
+                {var_path: "/" + str(conf.out_path.joinpath(path.name))})
+
+    except Exception:
+        print("Error: An error occured while copying the files.")
+        exit(1)
+
+    return files
+
+
 def clean_build_dir(conf: config.Config, exception: list[str]) -> None:
     import shutil
 
-    path = pathlib.Path(conf.out_path)
+    path: pathlib.Path = pathlib.Path(conf.out_path)
 
     for item in path.iterdir():
         if item.name not in exception:

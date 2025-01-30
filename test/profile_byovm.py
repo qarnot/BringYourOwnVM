@@ -19,7 +19,7 @@ task.resources.append(bucket)
 task.results = bucket
 
 # The VM OS family
-task.constants['VM_GUEST_OS_FAMILY'] = 'linux' # or 'windows'
+task.constants['VM_GUEST_OS_FAMILY'] = 'linux'
 
 # The command to execute inside the VM
 task.constants['VM_CMD'] = '<<<COMMAND_HERE>>>'
